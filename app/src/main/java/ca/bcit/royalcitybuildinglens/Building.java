@@ -35,6 +35,16 @@ public class Building {
     private String developer;
     @SerializedName("ARCHITECT")
     private String architect;
+    @SerializedName("MOVED")
+    private int yearMoved;
+
+    public void merge(Building other) {
+        if (this.id != other.id)
+            throw new IllegalArgumentException("Cannot merge buildings with different ID");
+        this.yearBuilt = other.yearBuilt;
+        this.developer = other.developer;
+        this.architect = other.architect;
+    }
 
     public int getId() {
         return id;
@@ -164,6 +174,14 @@ public class Building {
         this.architect = architect;
     }
 
+    public int getYearMoved() {
+        return yearMoved;
+    }
+
+    public void setYearMoved(int yearMoved) {
+        this.yearMoved = yearMoved;
+    }
+
     @Override
     public String toString() {
         return "Building{" +
@@ -183,6 +201,7 @@ public class Building {
                 ", yearBuilt=" + yearBuilt +
                 ", developer='" + developer + '\'' +
                 ", architect='" + architect + '\'' +
+                ", yearMoved=" + yearMoved +
                 '}';
     }
 }
