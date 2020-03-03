@@ -1,6 +1,7 @@
 package ca.bcit.royalcitybuildinglens;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,17 +9,13 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -31,10 +28,13 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
@@ -49,6 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ProgressBar progressBar;
     private Button arButton;
     private Button tryAgainButton;
+    private boolean errorDisplayed;
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -72,31 +73,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         arButton = findViewById(R.id.arButton);
         tryAgainButton = findViewById(R.id.tryAgainButton);
 
+        errorDisplayed = false;
+
         bldgAttributes = null;
         bldgAge = null;
+
+        buildings = new HashMap<>();
+
+        readData();
+//        readDataFromFiles();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-//        readData();
-        readDataFromFiles();
     }
 
     private void readDataFromFiles() {
-        JSONParser parser = new JSONParser();
         try {
             bldgAttributes = new JSONObject(loadJSONFromAsset("BUILDING_ATTRIBUTES.json"));
             bldgAge = new JSONObject(loadJSONFromAsset("BUILDING_AGE.json"));
-
-            JSONArray attrData = bldgAttributes.getJSONArray("features");
-            JSONArray ageData = bldgAge.getJSONArray("features");
-            for (int i = 0; i < attrData.length(); i++) {
-                JSONObject jsonBldg = attrData.getJSONObject(i);
-                Building bldg = gson.fromJson(jsonBldg.get("properties").toString(), Building.class);
-                buildings.put(bldg.getId(), bldg);
-            }
-            System.out.println();
+            createBuildingObjects();
         } catch (JSONException e) {
             e.printStackTrace();
             setLoadingError();
@@ -120,48 +116,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void readData() {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(retrieveJSONObject(getString(R.string.building_attr_url)));
-        queue.add(retrieveJSONObject(getString(R.string.building_age_url)));
-    }
-
-    private JsonObjectRequest retrieveJSONObject(String url) {
-        return new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    String name = response.getString("name");
-                    if (name.equals("BUILDING_ATTRIBUTES"))
-                        bldgAttributes = response;
-                    if (name.equals("BUILDING_AGE"))
-                        bldgAge = response;
-                    if (bldgAttributes != null && bldgAge != null)
-                        createBuildingObjects();
-                    clearLoadingCard();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    setLoadingError();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
+        new DownloadFileFromURL().execute(getString(R.string.building_attr_url));
+        new DownloadFileFromURL().execute(getString(R.string.building_age_url));
     }
 
     private void createBuildingObjects() {
         try {
             JSONArray attrData = bldgAttributes.getJSONArray("features");
             JSONArray ageData = bldgAge.getJSONArray("features");
-
             for (int i = 0; i < attrData.length(); i++) {
-                JSONObject bldg = attrData.getJSONObject(i).getJSONObject("features");
-//                buildings.put()
-
+                JSONObject jsonBldg = attrData.getJSONObject(i);
+                Building bldg = gson.fromJson(jsonBldg.get("properties").toString(), Building.class);
+                buildings.put(bldg.getId(), bldg);
             }
+            for (int i = 0; i < ageData.length(); i++) {
+                JSONObject jsonBldg = ageData.getJSONObject(i);
+                Building bldg = gson.fromJson(jsonBldg.get("properties").toString(), Building.class);
+                if (buildings.containsKey(bldg.getId())) {
+                    buildings.get(bldg.getId()).merge(bldg);
+                } else {
+                    buildings.put(bldg.getId(), bldg);
+                }
+            }
+            System.out.println("NUMBER OF BUILDINGS: " + buildings.size());
+            clearLoadingCard();
         } catch (JSONException e) {
             e.printStackTrace();
             setLoadingError();
@@ -174,15 +152,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setLoadingError() {
-        loadingText.setText(getString(R.string.loading_failed));
-        progressBar.setVisibility(View.GONE);
-        tryAgainButton.setVisibility(View.VISIBLE);
+        if (!errorDisplayed) {
+            loadingText.setText(getString(R.string.loading_failed));
+            progressBar.setVisibility(View.GONE);
+            tryAgainButton.setVisibility(View.VISIBLE);
+            errorDisplayed = true;
+        }
     }
 
-    private void onTryAgain(View v) {
+    public void onTryAgain(View v) {
         loadingText.setText(getString(R.string.loading_data));
         progressBar.setVisibility(View.VISIBLE);
         tryAgainButton.setVisibility(View.GONE);
+        errorDisplayed = false;
 
         readData();
     }
@@ -276,5 +258,64 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onClickAR(View view) {
         Intent intent = new Intent(this, ARActivity.class);
         startActivity(intent);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class DownloadFileFromURL extends AsyncTask<String, String, JSONObject> {
+
+        @Override
+        protected JSONObject doInBackground(String... params) {
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
+
+            try {
+                URL url = new URL(params[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                InputStream stream = connection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                StringBuilder builder = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line).append("\n");
+                }
+
+                return new JSONObject(builder.toString());
+
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+                runOnUiThread(MapsActivity.this::setLoadingError);
+            } finally {
+                if (connection != null)
+                    connection.disconnect();
+                try {
+                    if (reader != null)
+                        reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject result) {
+            try {
+                String name = result.getString("name");
+                if (name.equals("BUILDING_ATTRIBUTES"))
+                    bldgAttributes = result;
+                if (name.equals("BUILDING_AGE"))
+                    bldgAge = result;
+                if (bldgAttributes != null && bldgAge != null)
+                    createBuildingObjects();
+
+            } catch (JSONException|NullPointerException e) {
+                e.printStackTrace();
+                runOnUiThread(MapsActivity.this::setLoadingError);
+            }
+        }
     }
 }

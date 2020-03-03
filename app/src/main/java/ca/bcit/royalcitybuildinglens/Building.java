@@ -20,21 +20,31 @@ public class Building {
     @SerializedName("NUM_B_GRND")
     private int numBelow;
     @SerializedName("SQM_SITCVR")
-    private int sqMeter;
+    private double sqMeter;
     @SerializedName("SQM_FTPRNT")
-    private int footprint;
+    private double footprint;
     @SerializedName("NUM_RES")
     private int numResidence;
     @SerializedName("SQM_A_GRND")
-    private int sqmAbove;
+    private double sqmAbove;
     @SerializedName("SQM_B_GRND")
-    private int sqmBelow;
+    private double sqmBelow;
     @SerializedName("BLDGAGE")
     private int yearBuilt;
     @SerializedName("DEVELOPER")
     private String developer;
     @SerializedName("ARCHITECT")
     private String architect;
+    @SerializedName("MOVED")
+    private int yearMoved;
+
+    public void merge(Building other) {
+        if (this.id != other.id)
+            throw new IllegalArgumentException("Cannot merge buildings with different ID");
+        this.yearBuilt = other.yearBuilt;
+        this.developer = other.developer;
+        this.architect = other.architect;
+    }
 
     public int getId() {
         return id;
@@ -100,19 +110,19 @@ public class Building {
         this.numBelow = numBelow;
     }
 
-    public int getSqMeter() {
+    public double getSqMeter() {
         return sqMeter;
     }
 
-    public void setSqMeter(int sqMeter) {
+    public void setSqMeter(double sqMeter) {
         this.sqMeter = sqMeter;
     }
 
-    public int getFootprint() {
+    public double getFootprint() {
         return footprint;
     }
 
-    public void setFootprint(int footprint) {
+    public void setFootprint(double footprint) {
         this.footprint = footprint;
     }
 
@@ -124,19 +134,19 @@ public class Building {
         this.numResidence = numResidence;
     }
 
-    public int getSqmAbove() {
+    public double getSqmAbove() {
         return sqmAbove;
     }
 
-    public void setSqmAbove(int sqmAbove) {
+    public void setSqmAbove(double sqmAbove) {
         this.sqmAbove = sqmAbove;
     }
 
-    public int getSqmBelow() {
+    public double getSqmBelow() {
         return sqmBelow;
     }
 
-    public void setSqmBelow(int sqmBelow) {
+    public void setSqmBelow(double sqmBelow) {
         this.sqmBelow = sqmBelow;
     }
 
@@ -162,5 +172,36 @@ public class Building {
 
     public void setArchitect(String architect) {
         this.architect = architect;
+    }
+
+    public int getYearMoved() {
+        return yearMoved;
+    }
+
+    public void setYearMoved(int yearMoved) {
+        this.yearMoved = yearMoved;
+    }
+
+    @Override
+    public String toString() {
+        return "Building{" +
+                "id=" + id +
+                ", mapRef=" + mapRef +
+                ", unitNum='" + unitNum + '\'' +
+                ", streetNum='" + streetNum + '\'' +
+                ", streetName='" + streetName + '\'' +
+                ", buildingName='" + buildingName + '\'' +
+                ", numAbove=" + numAbove +
+                ", numBelow=" + numBelow +
+                ", sqMeter=" + sqMeter +
+                ", footprint=" + footprint +
+                ", numResidence=" + numResidence +
+                ", sqmAbove=" + sqmAbove +
+                ", sqmBelow=" + sqmBelow +
+                ", yearBuilt=" + yearBuilt +
+                ", developer='" + developer + '\'' +
+                ", architect='" + architect + '\'' +
+                ", yearMoved=" + yearMoved +
+                '}';
     }
 }
