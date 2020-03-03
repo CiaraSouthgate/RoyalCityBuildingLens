@@ -81,38 +81,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         buildings = new HashMap<>();
 
         readData();
-//        readDataFromFiles();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
-
-    private void readDataFromFiles() {
-        try {
-            bldgAttributes = new JSONObject(loadJSONFromAsset("BUILDING_ATTRIBUTES.json"));
-            bldgAge = new JSONObject(loadJSONFromAsset("BUILDING_AGE.json"));
-            createBuildingObjects();
-        } catch (JSONException e) {
-            e.printStackTrace();
-            setLoadingError();
-        }
-    }
-
-    public String loadJSONFromAsset(String fileName) {
-        String json = null;
-        try {
-            InputStream is = this.getAssets().open(fileName);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
     }
 
     private void readData() {
