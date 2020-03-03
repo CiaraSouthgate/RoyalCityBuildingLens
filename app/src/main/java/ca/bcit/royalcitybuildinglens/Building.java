@@ -1,23 +1,39 @@
 package ca.bcit.royalcitybuildinglens;
 
-import org.json.JSONObject;
+import com.google.gson.annotations.SerializedName;
 
 public class Building {
+    @SerializedName("BLDG_ID")
     private int id;
+    @SerializedName("MAPREF")
     private int mapRef;
+    @SerializedName("UNITNUM")
     private String unitNum;
+    @SerializedName("STRNUM")
     private String streetNum;
+    @SerializedName("STRNAM")
     private String streetName;
+    @SerializedName("BLDGNAM")
     private String buildingName;
+    @SerializedName("NUM_A_GRND")
     private int numAbove;
+    @SerializedName("NUM_B_GRND")
     private int numBelow;
+    @SerializedName("SQM_SITCVR")
     private int sqMeter;
+    @SerializedName("SQM_FTPRNT")
     private int footprint;
+    @SerializedName("NUM_RES")
     private int numResidence;
+    @SerializedName("SQM_A_GRND")
     private int sqmAbove;
+    @SerializedName("SQM_B_GRND")
     private int sqmBelow;
-    private int buildingAge;
+    @SerializedName("BLDGAGE")
+    private int yearBuilt;
+    @SerializedName("DEVELOPER")
     private String developer;
+    @SerializedName("ARCHITECT")
     private String architect;
 
     public int getId() {
@@ -124,12 +140,12 @@ public class Building {
         this.sqmBelow = sqmBelow;
     }
 
-    public int getBuildingAge() {
-        return buildingAge;
+    public int getYearBuilt() {
+        return yearBuilt;
     }
 
-    public void setBuildingAge(int buildingAge) {
-        this.buildingAge = buildingAge;
+    public void setYearBuilt(int yearBuilt) {
+        this.yearBuilt = yearBuilt;
     }
 
     public String getDeveloper() {
@@ -147,8 +163,4 @@ public class Building {
     public void setArchitect(String architect) {
         this.architect = architect;
     }
-
-    //    public Building(JSONObject json) {
-//        this.id =
-//    }
 }
