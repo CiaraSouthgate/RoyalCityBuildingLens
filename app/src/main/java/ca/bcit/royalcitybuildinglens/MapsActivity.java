@@ -8,13 +8,17 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,19 +26,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.HashMap;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -56,6 +57,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private JSONObject bldgAttributes;
     private JSONObject bldgAge;
 
+    private Gson gson = new Gson();
+
     private HashMap<Integer, Building> buildings;
 
     @Override
@@ -72,16 +75,81 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bldgAttributes = null;
         bldgAge = null;
 
-        readData();
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+//        readData();
+        readDataFromFiles();
+    }
+
+    private void readDataFromFiles() {
+        JSONParser parser = new JSONParser();
+        try {
+            bldgAttributes = new JSONObject(loadJSONFromAsset("BUILDING_ATTRIBUTES.json"));
+            bldgAge = new JSONObject(loadJSONFromAsset("BUILDING_AGE.json"));
+
+            JSONArray attrData = bldgAttributes.getJSONArray("features");
+            JSONArray ageData = bldgAge.getJSONArray("features");
+            for (int i = 0; i < attrData.length(); i++) {
+                JSONObject jsonBldg = attrData.getJSONObject(i);
+                Building bldg = gson.fromJson(jsonBldg.get("properties").toString(), Building.class);
+                buildings.put(bldg.getId(), bldg);
+            }
+            System.out.println();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            setLoadingError();
+        }
+    }
+
+    public String loadJSONFromAsset(String fileName) {
+        String json = null;
+        try {
+            InputStream is = this.getAssets().open(fileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
     }
 
     private void readData() {
-        new DownloadFileFromURL().execute(getString(R.string.building_attr_url));
-        new DownloadFileFromURL().execute(getString(R.string.building_age_url));
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(retrieveJSONObject(getString(R.string.building_attr_url)));
+        queue.add(retrieveJSONObject(getString(R.string.building_age_url)));
+    }
+
+    private JsonObjectRequest retrieveJSONObject(String url) {
+        return new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String name = response.getString("name");
+                    if (name.equals("BUILDING_ATTRIBUTES"))
+                        bldgAttributes = response;
+                    if (name.equals("BUILDING_AGE"))
+                        bldgAge = response;
+                    if (bldgAttributes != null && bldgAge != null)
+                        createBuildingObjects();
+                    clearLoadingCard();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    setLoadingError();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
     }
 
     private void createBuildingObjects() {
@@ -208,63 +276,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onClickAR(View view) {
         Intent intent = new Intent(this, ARActivity.class);
         startActivity(intent);
-    }
-
-    private class DownloadFileFromURL extends AsyncTask<String, String, JSONObject> {
-
-        @Override
-        protected JSONObject doInBackground(String... params) {
-            HttpsURLConnection connection = null;
-            BufferedReader reader = null;
-
-            try {
-                URL url = new URL(params[0]);
-                connection = (HttpsURLConnection) url.openConnection();
-                connection.connect();
-
-                InputStream stream = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                StringBuilder builder = new StringBuilder();
-                String line = "";
-
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line).append("\n");
-                }
-
-                return new JSONObject(builder.toString());
-
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-                setLoadingError();
-            } finally {
-                if (connection != null)
-                    connection.disconnect();
-                try {
-                    if (reader != null)
-                        reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-    }
-
-    protected void onPostExecute(JSONObject result) {
-        try {
-            String name = result.getString("name");
-            if (name.equals("BUILDING_ATTRIBUTES"))
-                bldgAttributes = result;
-            if (name.equals("BUILDING_AGE"))
-                bldgAge = result;
-            if (bldgAttributes != null && bldgAge != null)
-                createBuildingObjects();
-                clearLoadingCard();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            setLoadingError();
-        }
     }
 }
