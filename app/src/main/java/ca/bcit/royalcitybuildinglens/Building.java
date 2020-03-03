@@ -1,23 +1,39 @@
 package ca.bcit.royalcitybuildinglens;
 
-import org.json.JSONObject;
+import com.google.gson.annotations.SerializedName;
 
 public class Building {
+    @SerializedName("BLDG_ID")
     private int id;
+    @SerializedName("MAPREF")
     private int mapRef;
+    @SerializedName("UNITNUM")
     private String unitNum;
+    @SerializedName("STRNUM")
     private String streetNum;
+    @SerializedName("STRNAM")
     private String streetName;
+    @SerializedName("BLDGNAM")
     private String buildingName;
+    @SerializedName("NUM_A_GRND")
     private int numAbove;
+    @SerializedName("NUM_B_GRND")
     private int numBelow;
-    private int sqMeter;
-    private int footprint;
+    @SerializedName("SQM_SITCVR")
+    private double sqMeter;
+    @SerializedName("SQM_FTPRNT")
+    private double footprint;
+    @SerializedName("NUM_RES")
     private int numResidence;
-    private int sqmAbove;
-    private int sqmBelow;
-    private int buildingAge;
+    @SerializedName("SQM_A_GRND")
+    private double sqmAbove;
+    @SerializedName("SQM_B_GRND")
+    private double sqmBelow;
+    @SerializedName("BLDGAGE")
+    private int yearBuilt;
+    @SerializedName("DEVELOPER")
     private String developer;
+    @SerializedName("ARCHITECT")
     private String architect;
 
     public int getId() {
@@ -84,19 +100,19 @@ public class Building {
         this.numBelow = numBelow;
     }
 
-    public int getSqMeter() {
+    public double getSqMeter() {
         return sqMeter;
     }
 
-    public void setSqMeter(int sqMeter) {
+    public void setSqMeter(double sqMeter) {
         this.sqMeter = sqMeter;
     }
 
-    public int getFootprint() {
+    public double getFootprint() {
         return footprint;
     }
 
-    public void setFootprint(int footprint) {
+    public void setFootprint(double footprint) {
         this.footprint = footprint;
     }
 
@@ -108,28 +124,28 @@ public class Building {
         this.numResidence = numResidence;
     }
 
-    public int getSqmAbove() {
+    public double getSqmAbove() {
         return sqmAbove;
     }
 
-    public void setSqmAbove(int sqmAbove) {
+    public void setSqmAbove(double sqmAbove) {
         this.sqmAbove = sqmAbove;
     }
 
-    public int getSqmBelow() {
+    public double getSqmBelow() {
         return sqmBelow;
     }
 
-    public void setSqmBelow(int sqmBelow) {
+    public void setSqmBelow(double sqmBelow) {
         this.sqmBelow = sqmBelow;
     }
 
-    public int getBuildingAge() {
-        return buildingAge;
+    public int getYearBuilt() {
+        return yearBuilt;
     }
 
-    public void setBuildingAge(int buildingAge) {
-        this.buildingAge = buildingAge;
+    public void setYearBuilt(int yearBuilt) {
+        this.yearBuilt = yearBuilt;
     }
 
     public String getDeveloper() {
@@ -148,7 +164,25 @@ public class Building {
         this.architect = architect;
     }
 
-    //    public Building(JSONObject json) {
-//        this.id =
-//    }
+    @Override
+    public String toString() {
+        return "Building{" +
+                "id=" + id +
+                ", mapRef=" + mapRef +
+                ", unitNum='" + unitNum + '\'' +
+                ", streetNum='" + streetNum + '\'' +
+                ", streetName='" + streetName + '\'' +
+                ", buildingName='" + buildingName + '\'' +
+                ", numAbove=" + numAbove +
+                ", numBelow=" + numBelow +
+                ", sqMeter=" + sqMeter +
+                ", footprint=" + footprint +
+                ", numResidence=" + numResidence +
+                ", sqmAbove=" + sqmAbove +
+                ", sqmBelow=" + sqmBelow +
+                ", yearBuilt=" + yearBuilt +
+                ", developer='" + developer + '\'' +
+                ", architect='" + architect + '\'' +
+                '}';
+    }
 }

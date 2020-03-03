@@ -77,7 +77,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Building bldg = gson.fromJson(jsonBldg.get("properties").toString(), Building.class);
                 buildings.put(bldg.getId(), bldg);
             }
-            System.out.println();
         } catch (JSONException e) {
             e.printStackTrace();
         }
