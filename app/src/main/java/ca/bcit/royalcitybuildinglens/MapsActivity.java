@@ -1,10 +1,5 @@
 package ca.bcit.royalcitybuildinglens;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +18,21 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -30,14 +40,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
     private LocationListener locationListener;
 
+    private JSONObject bldgAttributes;
+    private JSONObject bldgAge;
+
+    private Gson gson = new Gson();
+
+    private HashMap<Integer, Building> buildings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        bldgAttributes = null;
+        bldgAge = null;
+
+        buildings = new HashMap<>();
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        readDataFromFiles();
+    }
+
+    private void readDataFromFiles() {
+        JSONParser parser = new JSONParser();
+        try {
+            bldgAttributes = new JSONObject(loadJSONFromAsset("BUILDING_ATTRIBUTES.json"));
+            bldgAge = new JSONObject(loadJSONFromAsset("BUILDING_AGE.json"));
+
+            JSONArray attrData = bldgAttributes.getJSONArray("features");
+            JSONArray ageData = bldgAge.getJSONArray("features");
+            for (int i = 0; i < attrData.length(); i++) {
+                JSONObject jsonBldg = attrData.getJSONObject(i);
+                Building bldg = gson.fromJson(jsonBldg.get("properties").toString(), Building.class);
+                buildings.put(bldg.getId(), bldg);
+            }
+            System.out.println();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String loadJSONFromAsset(String fileName) {
+        String json = null;
+        try {
+            InputStream is = this.getAssets().open(fileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
     }
 
     /**
