@@ -209,8 +209,8 @@ public class Building {
         try {
             for (int i = 0; i < coordinatesLength; i++) {
                 JSONArray coords = (JSONArray) this.coordinates.get(i);
-                totalLatitude += coords.getDouble(0);
-                totalLongitude += coords.getDouble(1);
+                totalLatitude += coords.getDouble(1);
+                totalLongitude += coords.getDouble(0);
             }
         } catch (JSONException e) {
             e.printStackTrace();

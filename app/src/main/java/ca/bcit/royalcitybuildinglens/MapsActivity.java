@@ -35,6 +35,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
@@ -61,6 +64,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Gson gson = new Gson();
 
     private HashMap<Integer, Building> buildings;
+    private ArrayList<Building> sortedBuildings;
+
+    private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +124,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     buildings.put(bldg.getId(), bldg);
                 }
             }
+            sortBuildingsByNearest();
             System.out.println("NUMBER OF BUILDINGS: " + buildings.size());
             clearLoadingCard();
         } catch (JSONException e) {
@@ -147,6 +154,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         errorDisplayed = false;
 
         readData();
+    }
+
+    private void sortBuildingsByNearest() {
+        Comparator<Building> compareByLocation = new Comparator<Building>() {
+            @Override
+            public int compare(Building b1, Building b2) {
+                Float b1Distance = currentLocation.distanceTo(b1.getLocation());
+                Float b2Distance = currentLocation.distanceTo(b2.getLocation());
+                return b1Distance.compareTo(b2Distance);
+            }
+        };
+
+        ArrayList<Building> buildingList = new ArrayList<>(buildings.values());
+        Collections.sort(buildingList, compareByLocation);
+        sortedBuildings = buildingList;
+
+        // For testing
+        Building closestBuilding = sortedBuildings.get(0);
+        System.out.println("The closest building is at " + closestBuilding.getStreetNum() + " " + closestBuilding.getStreetName());
     }
 
     /**
@@ -205,7 +231,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                currentLocation = location;
                 addLocationToMap(location);
+                if (buildings.size() > 0) {
+                    sortBuildingsByNearest();
+                }
             }
 
             @Override
