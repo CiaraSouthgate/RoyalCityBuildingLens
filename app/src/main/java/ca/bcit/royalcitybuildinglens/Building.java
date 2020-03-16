@@ -1,6 +1,9 @@
 package ca.bcit.royalcitybuildinglens;
 
 import com.google.gson.annotations.SerializedName;
+import android.location.Location;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 public class Building {
     @SerializedName("BLDG_ID")
@@ -37,6 +40,9 @@ public class Building {
     private String architect;
     @SerializedName("MOVED")
     private int yearMoved;
+
+    private JSONArray coordinates;
+    private Location location;
 
     public void merge(Building other) {
         if (this.id != other.id)
@@ -180,6 +186,44 @@ public class Building {
 
     public void setYearMoved(int yearMoved) {
         this.yearMoved = yearMoved;
+    }
+
+    public void setCoordinates(JSONArray coordinates) {
+        this.coordinates = coordinates;
+        calculateLocation();
+    }
+
+    public Location getLocation() {
+        return this.location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    private void calculateLocation() {
+        int coordinatesLength = this.coordinates.length();
+        double totalLatitude = 0.0;
+        double totalLongitude = 0.0;
+
+        try {
+            for (int i = 0; i < coordinatesLength; i++) {
+                JSONArray coords = (JSONArray) this.coordinates.get(i);
+                totalLatitude += coords.getDouble(0);
+                totalLongitude += coords.getDouble(1);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        double avg_lat = totalLatitude / coordinatesLength;
+        double avg_long = totalLongitude / coordinatesLength;
+
+        Location location = new Location("");
+        location.setLatitude(avg_lat);
+        location.setLongitude(avg_long);
+
+        setLocation(location);
     }
 
     @Override

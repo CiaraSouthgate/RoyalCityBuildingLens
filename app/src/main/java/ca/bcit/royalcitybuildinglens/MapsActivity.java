@@ -99,6 +99,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             for (int i = 0; i < attrData.length(); i++) {
                 JSONObject jsonBldg = attrData.getJSONObject(i);
                 Building bldg = gson.fromJson(jsonBldg.get("properties").toString(), Building.class);
+
+                // Extracts array of coordinates from JSONObject and sets building coordinates to
+                // JSONArray value
+                JSONObject geo = (JSONObject) jsonBldg.get("geometry");
+                JSONArray coordinates = (JSONArray) geo.get("coordinates");
+                JSONArray inner_coordinates = (JSONArray) coordinates.get(0);
+                bldg.setCoordinates(inner_coordinates);
+
                 buildings.put(bldg.getId(), bldg);
             }
             for (int i = 0; i < ageData.length(); i++) {
