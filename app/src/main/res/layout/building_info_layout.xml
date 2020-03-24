@@ -12,6 +12,13 @@
         android:id="@+id/building_one_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/ARMY_NAVY_DEPARTMENT_STORE"
+        android:text="Army and Navy"
         android:textColor="#fff" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:textSize="24sp" />
 </LinearLayout>

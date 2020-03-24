@@ -1,14 +1,13 @@
 package ca.bcit.royalcitybuildinglens;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.ar.core.Frame;
 import com.google.ar.core.Plane;
 import com.google.ar.core.TrackingState;
@@ -23,27 +22,26 @@ import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.LocationNode;
 import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
-import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
+
 
 public class ARActivity extends AppCompatActivity {
-    private boolean hasFinishedLoading = false;
     private ArSceneView arSceneView;
-    private ViewRenderable buildingInfoLayoutRenderable;
+    private ViewRenderable buildingRenderable;
     private LocationScene locationScene;
-    private Snackbar loadingMessageSnackbar = null;
+    private boolean hasFinishedLoading = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar);
-        arSceneView = findViewById(R.id.ar_scene_view);
-        CompletableFuture<ViewRenderable> exampleLayout =
+        CompletableFuture<ViewRenderable> buildingLayout =
                 ViewRenderable.builder()
-                        .setView(this, R.layout.building_info_layout)
-                        .build();
+                .setView(this, R.layout.building_info_layout)
+                .build();
 
         CompletableFuture.allOf(
-                exampleLayout)
+                buildingLayout)
                 .handle(
                         (notUsed, throwable) -> {
                             // When you build a Renderable, Sceneform loads its resources in the background while
@@ -58,7 +56,7 @@ public class ARActivity extends AppCompatActivity {
                             }
 
                             try {
-                                buildingInfoLayoutRenderable = exampleLayout.get();
+                                buildingRenderable = buildingLayout.get();
                                 hasFinishedLoading = true;
 
                             } catch (InterruptedException | ExecutionException ex) {
@@ -69,9 +67,10 @@ public class ARActivity extends AppCompatActivity {
 
                             return null;
                         });
+
         arSceneView
                 .getScene()
-                .addOnUpdateListener(
+                .setOnUpdateListener(
                         frameTime -> {
                             if (!hasFinishedLoading) {
                                 return;
@@ -85,8 +84,8 @@ public class ARActivity extends AppCompatActivity {
                                 // Now lets create our location markers.
                                 // First, a layout
                                 LocationMarker layoutLocationMarker = new LocationMarker(
-                                        -122.906519,
-                                        49.203622,
+                                        -4.849509,
+                                        42.814603,
                                         getBuildingView()
                                 );
 
@@ -95,9 +94,9 @@ public class ARActivity extends AppCompatActivity {
                                 layoutLocationMarker.setRenderEvent(new LocationNodeRender() {
                                     @Override
                                     public void render(LocationNode node) {
-                                        View eView = buildingInfoLayoutRenderable.getView();
-                                        TextView distanceTextView = eView.findViewById(R.id.building_one_tv);
-                                        //distanceTextView.setText(node.getDistance() + "M");
+                                        View eView = buildingRenderable.getView();
+                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
+                                        distanceTextView.setText(node.getDistance() + "M");
                                     }
                                 });
                                 // Adding the marker
@@ -118,23 +117,21 @@ public class ARActivity extends AppCompatActivity {
                                 locationScene.processFrame(frame);
                             }
 
-                            if (loadingMessageSnackbar != null) {
-                                for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
-                                    if (plane.getTrackingState() == TrackingState.TRACKING) {
-                                        hideLoadingMessage();
-                                    }
-                                }
-                            }
+//                            if (loadingMessageSnackbar != null) {
+//                                for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
+//                                    if (plane.getTrackingState() == TrackingState.TRACKING) {
+//                                        hideLoadingMessage();
+//                                    }
+//                                }
+//                            }
                         });
-
-        ARLocationPermissionHelper.requestPermission(this);
     }
     private Node getBuildingView() {
         Node base = new Node();
-        base.setRenderable(buildingInfoLayoutRenderable);
+        base.setRenderable(buildingRenderable);
         Context c = this;
         // Add  listeners etc here
-        View eView = buildingInfoLayoutRenderable.getView();
+        View eView = buildingRenderable.getView();
         eView.setOnTouchListener((v, event) -> {
             Toast.makeText(
                     c, "Location marker touched.", Toast.LENGTH_LONG)
@@ -143,14 +140,6 @@ public class ARActivity extends AppCompatActivity {
         });
 
         return base;
-    }
-    private void hideLoadingMessage() {
-        if (loadingMessageSnackbar == null) {
-            return;
-        }
-
-        loadingMessageSnackbar.dismiss();
-        loadingMessageSnackbar = null;
     }
 
 }
