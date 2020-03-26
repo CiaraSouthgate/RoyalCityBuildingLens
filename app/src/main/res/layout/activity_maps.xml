@@ -17,6 +17,21 @@
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/refreshButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onClickRefresh"
+        android:src="@drawable/ic_refresh_black_64dp"
+        android:tint="@color/colorPrimary"
+        android:visibility="gone"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
     <Button
         android:id="@+id/arButton"
         android:layout_width="wrap_content"
@@ -27,7 +42,8 @@
         android:text="@string/open_in_ar"
         android:visibility="gone"
         map:layout_constraintBottom_toBottomOf="@+id/map"
-        map:layout_constraintEnd_toEndOf="parent" />
+        map:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/loadingCard"
@@ -105,4 +121,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

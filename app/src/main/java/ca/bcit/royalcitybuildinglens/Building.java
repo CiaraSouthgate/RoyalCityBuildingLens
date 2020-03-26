@@ -1,7 +1,9 @@
 package ca.bcit.royalcitybuildinglens;
 
-import com.google.gson.annotations.SerializedName;
 import android.location.Location;
+
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -246,6 +248,8 @@ public class Building {
                 ", developer='" + developer + '\'' +
                 ", architect='" + architect + '\'' +
                 ", yearMoved=" + yearMoved +
-                '}';
+                ", coordinates=" + coordinates +
+                ", location=" + location +
+                "}";
     }
 }

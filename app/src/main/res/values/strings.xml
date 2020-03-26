@@ -17,5 +17,9 @@
         Builder: MCDOUGALL, A C and SONS\n
         architect:VAN NORMAN, CHARLES BURWELL KERRENS\n
         Moved year: 0
-</string>
+    </string>
+    <string name="confirm_refresh_title">Refresh building data?</string>
+    <string name="confirm_refresh_text">This may take a few minutes.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

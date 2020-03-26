@@ -2,6 +2,7 @@ package ca.bcit.royalcitybuildinglens;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -52,6 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ProgressBar progressBar;
     private Button arButton;
     private Button tryAgainButton;
+    private ImageButton refreshButton;
     private boolean errorDisplayed;
 
     private GoogleMap mMap;
@@ -66,7 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private HashMap<Integer, Building> buildings;
     private ArrayList<Building> sortedBuildings;
 
-    private Location currentLocation;
+    private static Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         progressBar = findViewById(R.id.progressBar);
         arButton = findViewById(R.id.arButton);
         tryAgainButton = findViewById(R.id.tryAgainButton);
+        refreshButton = findViewById(R.id.refreshButton);
 
         errorDisplayed = false;
 
@@ -91,6 +95,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    public static void setCurrentLocation(Location location) {
+        currentLocation = location;
     }
 
     private void readData() {
@@ -135,6 +143,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void clearLoadingCard() {
         loadingCard.setVisibility(View.GONE);
         arButton.setVisibility(View.VISIBLE);
+        refreshButton.setVisibility(View.VISIBLE);
     }
 
     private void setLoadingError() {
@@ -156,12 +165,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void sortBuildingsByNearest() {
-        Comparator<Building> compareByLocation = new Comparator<Building>() {
-            @Override
-            public int compare(Building b1, Building b2) {
+        Comparator<Building> compareByLocation = (b1, b2) -> {
+            try {
                 Float b1Distance = currentLocation.distanceTo(b1.getLocation());
                 Float b2Distance = currentLocation.distanceTo(b2.getLocation());
                 return b1Distance.compareTo(b2Distance);
+            } catch (NullPointerException e) {
+                System.out.println(currentLocation);
+                System.out.println(b1);
+                System.out.println(b2);
+                throw e;
             }
         };
 
@@ -230,7 +243,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                currentLocation = location;
+                MapsActivity.setCurrentLocation(location);
                 addLocationToMap(location);
                 if (buildings.size() > 0) {
                     sortBuildingsByNearest();
@@ -265,8 +278,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * @param view view
      */
     public void onClickAR(View view) {
+        sortBuildingsByNearest();
         Intent intent = new Intent(this, ARActivity.class);
+        intent.putExtra("buildings", sortedBuildings);
         startActivity(intent);
+    }
+
+    public void onClickRefresh(View view) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.confirm_refresh_title)
+                .setMessage(R.string.confirm_refresh_text)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    loadingCard.setVisibility(View.VISIBLE);
+                    readData();
+                })
+                .setNegativeButton(R.string.cancel, null).show();
     }
 
     @SuppressLint("StaticFieldLeak")
