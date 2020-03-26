@@ -234,7 +234,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 currentLocation = location;
                 addLocationToMap(location);
                 if (buildings.size() > 0) {
-                    sortBuildingsByNearest();
+//                    sortBuildingsByNearest();
                 }
             }
 
