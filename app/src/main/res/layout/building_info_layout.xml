@@ -14,6 +14,13 @@
         android:layout_height="wrap_content"
         android:text="Army and Navy"
         android:textColor="#fff" />
+    <TextView
+        android:id="@+id/testing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ARMY_NAVY_DEPARTMENT_STORE"
+        android:textColor="#fff"
+        android:textSize="24sp" />
 
     <TextView
         android:id="@+id/textView2"

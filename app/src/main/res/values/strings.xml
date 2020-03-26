@@ -7,6 +7,7 @@
     <string name="loading_data">Retrieving building data…</string>
     <string name="loading_failed">Failed to retrieve data</string>
     <string name="try_again">Try again</string>
+    <string name="plane_finding">Searching for surfaces&#8230;</string>
     <string name="ARMY_NAVY_DEPARTMENT_STORE">
         building ID:55\n
         MAPREF:260000\n
