@@ -124,7 +124,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     buildings.put(bldg.getId(), bldg);
                 }
             }
-            sortBuildingsByNearest();
             System.out.println("NUMBER OF BUILDINGS: " + buildings.size());
             clearLoadingCard();
         } catch (JSONException e) {
@@ -234,7 +233,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 currentLocation = location;
                 addLocationToMap(location);
                 if (buildings.size() > 0) {
-//                    sortBuildingsByNearest();
+                    sortBuildingsByNearest();
                 }
             }
 
