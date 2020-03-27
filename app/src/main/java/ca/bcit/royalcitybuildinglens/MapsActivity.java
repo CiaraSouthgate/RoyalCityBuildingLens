@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -71,6 +74,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static Location currentLocation;
 
+    private static final String STORAGE = "buildings";
+    private SharedPreferences pref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,13 +94,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bldgAttributes = null;
         bldgAge = null;
 
-        buildings = new HashMap<>();
+        pref = getApplicationContext().getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
 
-        readData();
+        buildings = readFile();
+        if (buildings == null || buildings.isEmpty())
+            readData();
+        else
+            clearLoadingCard();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    private HashMap<Integer, Building> readFile() {
+        String buildingsJson = pref.getString(STORAGE, null);
+        Type buildMapType = new TypeToken<HashMap<Integer, Building>>(){}.getType();
+        return gson.fromJson(buildingsJson, buildMapType);
+    }
+
+    private void saveData() {
+        String buildingsJson = gson.toJson(buildings);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(STORAGE, buildingsJson);
+        editor.apply();
     }
 
     public static void setCurrentLocation(Location location) {
@@ -108,6 +131,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void createBuildingObjects() {
         try {
+            buildings = new HashMap<>();
             JSONArray attrData = bldgAttributes.getJSONArray("features");
             JSONArray ageData = bldgAge.getJSONArray("features");
             for (int i = 0; i < attrData.length(); i++) {
@@ -132,6 +156,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     buildings.put(bldg.getId(), bldg);
                 }
             }
+            saveData();
             System.out.println("NUMBER OF BUILDINGS: " + buildings.size());
             clearLoadingCard();
         } catch (JSONException e) {
