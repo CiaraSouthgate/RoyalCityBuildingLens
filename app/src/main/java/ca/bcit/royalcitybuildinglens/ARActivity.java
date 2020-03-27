@@ -59,6 +59,13 @@ public class ARActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ar);
         arSceneView = findViewById(R.id.ar_scene_view);
 
+        Intent i = getIntent();
+        String buildingsJson = i.getStringExtra("buildings");
+        Type buildingsType = new TypeToken<ArrayList<Building>>(){}.getType();
+        buildings = new Gson().fromJson(buildingsJson, buildingsType);
+        buildings.forEach(Building::restoreLocation);
+        buildings.forEach(System.out::println);
+
         // Build building information renderable from building_info_Layout.xml
         CompletableFuture<ViewRenderable> buildingLayout =
                 ViewRenderable.builder()
@@ -148,14 +155,6 @@ public class ARActivity extends AppCompatActivity {
 //                                }
 //                            }
                         });
-
-
-        Intent i = getIntent();
-        String buildingsJson = i.getStringExtra("buildings");
-        Type buildingsType = new TypeToken<ArrayList<Building>>(){}.getType();
-        buildings = new Gson().fromJson(buildingsJson, buildingsType);
-        buildings.forEach(Building::restoreLocation);
-        buildings.forEach(System.out::println);
     }
     private Node getBuildingView() {
         Node base = new Node();
