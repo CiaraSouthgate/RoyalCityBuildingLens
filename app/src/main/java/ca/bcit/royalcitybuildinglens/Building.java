@@ -46,6 +46,9 @@ public class Building {
     private JSONArray coordinates;
     private Location location;
 
+    private double location_lat;
+    private double location_long;
+
     public void merge(Building other) {
         if (this.id != other.id)
             throw new IllegalArgumentException("Cannot merge buildings with different ID");
@@ -200,6 +203,15 @@ public class Building {
     }
 
     public void setLocation(Location location) {
+        this.location_lat = location.getLatitude();
+        this.location_long = location.getLongitude();
+        this.location = location;
+    }
+
+    public void restoreLocation() {
+        Location location = new Location("");
+        location.setLatitude(this.location_lat);
+        location.setLongitude(this.location_long);
         this.location = location;
     }
 

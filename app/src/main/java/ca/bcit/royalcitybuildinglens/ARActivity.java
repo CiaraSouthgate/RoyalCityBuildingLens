@@ -2,6 +2,7 @@ package ca.bcit.royalcitybuildinglens;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,14 +10,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
-import com.google.ar.core.Plane;
 import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
@@ -28,10 +25,16 @@ import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ViewRenderable;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.LocationNode;
@@ -48,6 +51,7 @@ public class ARActivity extends AppCompatActivity {
     private Snackbar loadingMessageSnackbar = null;
     private boolean installRequested;
 
+    private ArrayList<Building> buildings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +148,14 @@ public class ARActivity extends AppCompatActivity {
 //                                }
 //                            }
                         });
+
+
+        Intent i = getIntent();
+        String buildingsJson = i.getStringExtra("buildings");
+        Type buildingsType = new TypeToken<ArrayList<Building>>(){}.getType();
+        buildings = new Gson().fromJson(buildingsJson, buildingsType);
+        buildings.forEach(Building::restoreLocation);
+        buildings.forEach(System.out::println);
     }
     private Node getBuildingView() {
         Node base = new Node();
