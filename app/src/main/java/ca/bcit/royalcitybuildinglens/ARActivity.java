@@ -2,9 +2,8 @@ package ca.bcit.royalcitybuildinglens;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -58,7 +57,7 @@ public class ARActivity extends AppCompatActivity {
     private Snackbar loadingMessageSnackbar = null;
     private boolean installRequested;
 
-    private ArrayList<Building> buildings = new ArrayList<Building>();
+    private ArrayList<Building> buildings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,22 +65,12 @@ public class ARActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ar);
         arSceneView = findViewById(R.id.ar_scene_view);
 
-//        Intent i = getIntent();
-//        String buildingsJson = i.getStringExtra("buildings");
-//        Type buildingsType = new TypeToken<ArrayList<Building>>(){}.getType();
-//        buildings = new Gson().fromJson(buildingsJson, buildingsType);
-//        buildings.forEach(Building::restoreLocation);
-//        buildings.forEach(System.out::println);
-
-                                                                                                    Building test_building0 = test_building_init(-123.003295, 49.254206, 0);
-                                                                                                    Building test_building1 = test_building_init( -122.998605,49.252217, 1);
-                                                                                                    Building test_building2 = test_building_init(-123.001044,49.243280, 2);
-
-                                                                                                    buildings.add(test_building0);
-                                                                                                    buildings.add(test_building1);
-                                                                                                    buildings.add(test_building2);
-
-
+        Intent i = getIntent();
+        String buildingsJson = i.getStringExtra("buildings");
+        Type buildingsType = new TypeToken<ArrayList<Building>>(){}.getType();
+        buildings = new Gson().fromJson(buildingsJson, buildingsType);
+        buildings.forEach(Building::restoreLocation);
+        buildings.forEach(System.out::println);
 
         // Build building information renderable from building_info_Layout.xml
         CompletableFuture<ViewRenderable> buildingLayout0 =
@@ -401,30 +390,4 @@ public class ARActivity extends AppCompatActivity {
         }
         Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
     }
-
-
-                                                                                                    private Building test_building_init(double lon, double lat, int index){
-                                                                                                        Building building_test = new Building();
-                                                                                                        Location location = new Location("");
-                                                                                                        location.setLatitude(lat);
-                                                                                                        location.setLongitude(lon);
-                                                                                                        building_test.setLocation(location);
-                                                                                                        int id= index;
-                                                                                                        String address = "test_address"+index;
-                                                                                                        int mapRef = 123+index;
-                                                                                                        String name = "test_Name"+index;
-                                                                                                        int year = 202*10+index;
-                                                                                                        String builder = "test_builder"+index;
-                                                                                                        String arch = "test_architech"+index;
-                                                                                                        int moved = 0;
-                                                                                                        building_test.setId(id);
-                                                                                                        building_test.setStreetName(address);
-                                                                                                        building_test.setMapRef(mapRef);
-                                                                                                        building_test.setBuildingName(name);
-                                                                                                        building_test.setYearBuilt(year);
-                                                                                                        building_test.setDeveloper(builder);
-                                                                                                        building_test.setArchitect(arch);
-                                                                                                        building_test.setYearMoved(moved);
-                                                                                                        return building_test;
-                                                                                                    }
 }

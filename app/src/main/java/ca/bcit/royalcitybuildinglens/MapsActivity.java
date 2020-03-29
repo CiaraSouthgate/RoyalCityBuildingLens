@@ -2,8 +2,10 @@ package ca.bcit.royalcitybuildinglens;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -13,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -24,6 +27,7 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -52,6 +57,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ProgressBar progressBar;
     private Button arButton;
     private Button tryAgainButton;
+    private ImageButton refreshButton;
     private boolean errorDisplayed;
 
     private GoogleMap mMap;
@@ -66,7 +72,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private HashMap<Integer, Building> buildings;
     private ArrayList<Building> sortedBuildings;
 
-    private Location currentLocation;
+    private static Location currentLocation;
+
+    private static final String STORAGE = "buildings";
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,19 +87,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         progressBar = findViewById(R.id.progressBar);
         arButton = findViewById(R.id.arButton);
         tryAgainButton = findViewById(R.id.tryAgainButton);
+        refreshButton = findViewById(R.id.refreshButton);
 
         errorDisplayed = false;
 
         bldgAttributes = null;
         bldgAge = null;
 
-        buildings = new HashMap<>();
+        pref = getApplicationContext().getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
 
-        readData();
+        buildings = readFile();
+        if (buildings == null || buildings.isEmpty()) {
+            readData();
+        } else {
+            System.out.println("Loaded buildings from local storage.");
+            clearLoadingCard();
+        }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    private HashMap<Integer, Building> readFile() {
+        String buildingsJson = pref.getString(STORAGE, null);
+        Type buildMapType = new TypeToken<HashMap<Integer, Building>>(){}.getType();
+        HashMap<Integer, Building> buildingsMap = gson.fromJson(buildingsJson, buildMapType);
+        if (buildingsMap != null)
+            buildingsMap.values().forEach(Building::restoreLocation);
+        return buildingsMap;
+    }
+
+    private void saveData() {
+        String buildingsJson = gson.toJson(buildings);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(STORAGE, buildingsJson);
+        editor.apply();
     }
 
     private void readData() {
@@ -100,6 +132,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void createBuildingObjects() {
         try {
+            buildings = new HashMap<>();
             JSONArray attrData = bldgAttributes.getJSONArray("features");
             JSONArray ageData = bldgAge.getJSONArray("features");
             for (int i = 0; i < attrData.length(); i++) {
@@ -124,6 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     buildings.put(bldg.getId(), bldg);
                 }
             }
+            saveData();
             System.out.println("NUMBER OF BUILDINGS: " + buildings.size());
             clearLoadingCard();
         } catch (JSONException e) {
@@ -135,6 +169,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void clearLoadingCard() {
         loadingCard.setVisibility(View.GONE);
         arButton.setVisibility(View.VISIBLE);
+        refreshButton.setVisibility(View.VISIBLE);
     }
 
     private void setLoadingError() {
@@ -156,13 +191,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void sortBuildingsByNearest() {
-        Comparator<Building> compareByLocation = new Comparator<Building>() {
-            @Override
-            public int compare(Building b1, Building b2) {
-                Float b1Distance = currentLocation.distanceTo(b1.getLocation());
-                Float b2Distance = currentLocation.distanceTo(b2.getLocation());
-                return b1Distance.compareTo(b2Distance);
-            }
+        Comparator<Building> compareByLocation = (b1, b2) -> {
+            Float b1Distance = currentLocation.distanceTo(b1.getLocation());
+            Float b2Distance = currentLocation.distanceTo(b2.getLocation());
+            return b1Distance.compareTo(b2Distance);
         };
 
         ArrayList<Building> buildingList = new ArrayList<>(buildings.values());
@@ -199,6 +231,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
 
                 Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -230,11 +263,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                currentLocation = location;
+                MapsActivity.currentLocation = location;
                 addLocationToMap(location);
-                if (buildings.size() > 0) {
-                    sortBuildingsByNearest();
-                }
             }
 
             @Override
@@ -253,7 +283,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     0, locationListener);
             Location lastKnownLocation = locationManager
                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            addLocationToMap(lastKnownLocation);
+            if (lastKnownLocation == null) {
+                lastKnownLocation = locationManager
+                        .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                new AlertDialog.Builder(this).setTitle(R.string.network_location_warn_title)
+                        .setMessage(R.string.network_location_warn_text).setNeutralButton(R.string.ok,
+                        (dialog, which) -> {
+
+                        }).show();
+            }
+            try {
+                currentLocation = lastKnownLocation;
+                addLocationToMap(lastKnownLocation);
+            } catch (NullPointerException e) {
+                new AlertDialog.Builder(this).setTitle(R.string.location_err_title)
+                        .setMessage(R.string.location_err_text).setNeutralButton(R.string.ok, null).show();
+            }
         } else {
             ActivityCompat.requestPermissions(this, new String[] {
                     Manifest.permission.ACCESS_FINE_LOCATION}, 1);
@@ -265,8 +310,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * @param view view
      */
     public void onClickAR(View view) {
+        sortBuildingsByNearest();
         Intent intent = new Intent(this, ARActivity.class);
+        intent.putExtra("buildings", gson.toJson(sortedBuildings.subList(0, 10)));
         startActivity(intent);
+    }
+
+    public void onClickRefresh(View view) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.confirm_refresh_title)
+                .setMessage(R.string.confirm_refresh_text)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    loadingCard.setVisibility(View.VISIBLE);
+                    readData();
+                })
+                .setNegativeButton(R.string.cancel, null).show();
     }
 
     @SuppressLint("StaticFieldLeak")

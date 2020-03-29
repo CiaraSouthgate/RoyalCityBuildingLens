@@ -1,7 +1,9 @@
 package ca.bcit.royalcitybuildinglens;
 
-import com.google.gson.annotations.SerializedName;
 import android.location.Location;
+
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -43,6 +45,9 @@ public class Building {
 
     private JSONArray coordinates;
     private Location location;
+
+    private double location_lat;
+    private double location_long;
 
     public void merge(Building other) {
         if (this.id != other.id)
@@ -198,6 +203,15 @@ public class Building {
     }
 
     public void setLocation(Location location) {
+        this.location_lat = location.getLatitude();
+        this.location_long = location.getLongitude();
+        this.location = location;
+    }
+
+    public void restoreLocation() {
+        Location location = new Location("");
+        location.setLatitude(this.location_lat);
+        location.setLongitude(this.location_long);
         this.location = location;
     }
 
@@ -246,6 +260,8 @@ public class Building {
                 ", developer='" + developer + '\'' +
                 ", architect='" + architect + '\'' +
                 ", yearMoved=" + yearMoved +
-                '}';
+                ", coordinates=" + coordinates +
+                ", location=" + location +
+                "}";
     }
 }
