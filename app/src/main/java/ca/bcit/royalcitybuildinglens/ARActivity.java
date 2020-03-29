@@ -136,11 +136,11 @@ public class ARActivity extends AppCompatActivity {
                                 ArrayList<LocationMarker> locationMarkers = new ArrayList<LocationMarker>();
 
                                 // Building building information with layout( getBuildingView() )
-                                for(int i = 0; i < 3; i ++){
+                                for(int j = 0; j < 3; j ++){
                                     LocationMarker layoutLocationMarker = new LocationMarker(
-                                            buildings.get(i).getLocation().getLongitude(),
-                                            buildings.get(i).getLocation().getLatitude(),
-                                            getBuildingView(i)
+                                            buildings.get(j).getLocation().getLongitude(),
+                                            buildings.get(j).getLocation().getLatitude(),
+                                            getBuildingView(j)
                                     );
                                     locationMarkers.add(layoutLocationMarker);
                                 }
@@ -150,15 +150,19 @@ public class ARActivity extends AppCompatActivity {
                                     @Override
                                     public void render(LocationNode node) {
                                         View eView = buildingRenderable0.getView();
+                                        TextView nameTextView = eView.findViewById(R.id.building_name0);
                                         TextView attrTextView = eView.findViewById(R.id.building_attr0);
                                         TextView distanceTextView = eView.findViewById(R.id.building_dist0);
                                         String attr = "ID: "+ buildings.get(0).getId()+"\n"
                                                 + "MapRef: " + buildings.get(0).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(0).getStreetName()+"\n"
+                                                + "Address: " + buildings.get(0).getUnitNum() +" "
+                                                + buildings.get(0).getStreetNum() +" "
+                                                + buildings.get(0).getStreetName()+"\n"
                                                 + "Builder: " + buildings.get(0).getDeveloper()+"\n"
                                                 + "Architect: " + buildings.get(0).getArchitect()+"\n"
                                                 + "Year Built: " + buildings.get(0).getYearBuilt()+"\n"
                                                 + "Year Moved: " + buildings.get(0).getYearMoved();
+                                        nameTextView.setText(buildings.get(0).getBuildingName());
                                         attrTextView.setText(attr);
                                         distanceTextView.setText(node.getDistance() + "M");
                                     }
@@ -167,15 +171,17 @@ public class ARActivity extends AppCompatActivity {
                                     @Override
                                     public void render(LocationNode node) {
                                         View eView = buildingRenderable1.getView();
+                                        TextView nameTextView = eView.findViewById(R.id.building_name1);
                                         TextView attrTextView = eView.findViewById(R.id.building_attr1);
                                         TextView distanceTextView = eView.findViewById(R.id.building_dist1);
                                         String attr = "ID: "+ buildings.get(1).getId()+"\n"
                                                 + "MapRef: " + buildings.get(1).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(1).getStreetName()+"\n"
+                                                + "Address: " + buildings.get(0).getUnitNum() + buildings.get(0).getStreetNum() + buildings.get(0).getStreetName()+"\n"
                                                 + "Builder: " + buildings.get(1).getDeveloper()+"\n"
                                                 + "Architect: " + buildings.get(1).getArchitect()+"\n"
                                                 + "Year Built: " + buildings.get(1).getYearBuilt()+"\n"
                                                 + "Year Moved: " + buildings.get(1).getYearMoved();
+                                        nameTextView.setText(buildings.get(1).getBuildingName());
                                         attrTextView.setText(attr);
                                         distanceTextView.setText(node.getDistance() + "M");
                                     }
@@ -184,17 +190,18 @@ public class ARActivity extends AppCompatActivity {
                                     @Override
                                     public void render(LocationNode node) {
                                         View eView = buildingRenderable2.getView();
+                                        TextView nameTextView = eView.findViewById(R.id.building_name2);
                                         TextView attrTextView = eView.findViewById(R.id.building_attr2);
                                         TextView distanceTextView = eView.findViewById(R.id.building_dist2);
                                         String attr = "ID: "+ buildings.get(2).getId()+"\n"
                                                 + "MapRef: " + buildings.get(2).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(2).getStreetName()+"\n"
+                                                + "Address: " + buildings.get(0).getUnitNum() + buildings.get(0).getStreetNum() + buildings.get(0).getStreetName()+"\n"
                                                 + "Builder: " + buildings.get(2).getDeveloper()+"\n"
                                                 + "Architect: " + buildings.get(2).getArchitect()+"\n"
                                                 + "Year Built: " + buildings.get(2).getYearBuilt()+"\n"
                                                 + "Year Moved: " + buildings.get(2).getYearMoved();
+                                        nameTextView.setText(buildings.get(2).getBuildingName());
                                         attrTextView.setText(attr);
-
                                         distanceTextView.setText(node.getDistance() + "M");
                                     }
                                 });
