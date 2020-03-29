@@ -171,7 +171,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // For testing
         Building closestBuilding = sortedBuildings.get(0);
-        System.out.println("The closest building is at " + closestBuilding.getStreetNum() + " " + closestBuilding.getStreetName());
+        if (closestBuilding.getBuildingNameString() != null) {
+            System.out.println("The closest building is " + closestBuilding.getBuildingNameString()
+                    + " at " + closestBuilding.getStreetNum() + " "
+                    + closestBuilding.getStreetNameString());
+        } else {
+            System.out.println("The closest building is at " + closestBuilding.getStreetNum() + " "
+                    + closestBuilding.getStreetNameString());
+        }
+
     }
 
     /**
