@@ -8,14 +8,14 @@
     <string name="loading_failed">Failed to retrieve data</string>
     <string name="try_again">Try again</string>
     <string name="plane_finding">Searching for surfaces&#8230;</string>
-    <string name="ARMY_NAVY_DEPARTMENT_STORE">
-        building ID:55\n
-        MAPREF:260000\n
-        Address: 502 COLUMBIA ST\n
-        Name: ARMY And NAVY DEPARTMENT STORE\n
-        Builded in 1948\n
-        Builder: MCDOUGALL, A C and SONS\n
-        architect:VAN NORMAN, CHARLES BURWELL KERRENS\n
-        Moved year: 0
-</string>
+    <string name="built_in">Built in: </string>
+    <string name="developed_by">Developed by: </string>
+    <string name="architect">Architect: </string>
+    <string name="num_res">Number of residential units: </string>
+    <string name="floors_above">Floors above ground: </string>
+    <string name="floors_below">Floors below ground: </string>
+    <string name="area_above">Area above ground: </string>
+    <string name="area_below">Area below ground: </string>
+    <string name="footprint">Footprint: </string>
+    <string name="site_coverage">Site coverage: </string>
 </resources>
