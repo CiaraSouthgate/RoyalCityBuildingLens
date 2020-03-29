@@ -113,7 +113,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String buildingsJson = pref.getString(STORAGE, null);
         Type buildMapType = new TypeToken<HashMap<Integer, Building>>(){}.getType();
         HashMap<Integer, Building> buildingsMap = gson.fromJson(buildingsJson, buildMapType);
-        buildingsMap.values().forEach(Building::restoreLocation);
+        if (buildingsMap != null)
+            buildingsMap.values().forEach(Building::restoreLocation);
         return buildingsMap;
     }
 
