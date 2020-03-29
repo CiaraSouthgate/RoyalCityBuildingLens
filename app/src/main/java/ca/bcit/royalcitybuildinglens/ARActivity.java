@@ -176,7 +176,7 @@ public class ARActivity extends AppCompatActivity {
                                         TextView distanceTextView = eView.findViewById(R.id.building_dist1);
                                         String attr = "ID: "+ buildings.get(1).getId()+"\n"
                                                 + "MapRef: " + buildings.get(1).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(0).getUnitNum() + buildings.get(0).getStreetNum() + buildings.get(0).getStreetName()+"\n"
+                                                + "Address: " + buildings.get(1).getUnitNum() + buildings.get(1).getStreetNum() + buildings.get(1).getStreetName()+"\n"
                                                 + "Builder: " + buildings.get(1).getDeveloper()+"\n"
                                                 + "Architect: " + buildings.get(1).getArchitect()+"\n"
                                                 + "Year Built: " + buildings.get(1).getYearBuilt()+"\n"
@@ -195,7 +195,7 @@ public class ARActivity extends AppCompatActivity {
                                         TextView distanceTextView = eView.findViewById(R.id.building_dist2);
                                         String attr = "ID: "+ buildings.get(2).getId()+"\n"
                                                 + "MapRef: " + buildings.get(2).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(0).getUnitNum() + buildings.get(0).getStreetNum() + buildings.get(0).getStreetName()+"\n"
+                                                + "Address: " + buildings.get(2).getUnitNum() + buildings.get(2).getStreetNum() + buildings.get(2).getStreetName()+"\n"
                                                 + "Builder: " + buildings.get(2).getDeveloper()+"\n"
                                                 + "Architect: " + buildings.get(2).getArchitect()+"\n"
                                                 + "Year Built: " + buildings.get(2).getYearBuilt()+"\n"
