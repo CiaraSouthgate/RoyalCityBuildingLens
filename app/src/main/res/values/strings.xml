@@ -18,4 +18,5 @@
     <string name="area_below">Area below ground: </string>
     <string name="footprint">Footprint: </string>
     <string name="site_coverage">Site coverage: </string>
+    <string name="moved_in">Moved in: </string>
 </resources>
