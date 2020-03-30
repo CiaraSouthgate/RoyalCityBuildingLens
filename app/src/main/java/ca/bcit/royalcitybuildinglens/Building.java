@@ -87,6 +87,9 @@ public class Building {
     /** Single averaged lat & long value representing the location of this building */
     private Location location;
 
+    private double location_lat;
+    private double location_long;
+
     /**
      * Merges two building objects together
      * @param other Building
@@ -485,6 +488,15 @@ public class Building {
      * @param location location
      */
     public void setLocation(Location location) {
+        this.location_lat = location.getLatitude();
+        this.location_long = location.getLongitude();
+        this.location = location;
+    }
+
+    public void restoreLocation() {
+        Location location = new Location("");
+        location.setLatitude(this.location_lat);
+        location.setLongitude(this.location_long);
         this.location = location;
     }
 
@@ -541,6 +553,8 @@ public class Building {
                 ", developer='" + getDeveloperString() + '\'' +
                 ", architect='" + getArchitectString() + '\'' +
                 ", yearMoved=" + yearMoved +
-                '}';
+                ", coordinates=" + coordinates +
+                ", location=" + location +
+                "}";
     }
 }

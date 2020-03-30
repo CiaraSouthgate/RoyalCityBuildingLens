@@ -19,4 +19,12 @@
     <string name="footprint">Footprint: </string>
     <string name="site_coverage">Site coverage: </string>
     <string name="moved_in">Moved in: </string>
+    <string name="confirm_refresh_title">Refresh building data?</string>
+    <string name="confirm_refresh_text">This may take a few minutes.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="location_err_title">Location error</string>
+    <string name="location_err_text">Unable to detect device location. Please ensure location services are enabled and restart app.</string>
+    <string name="network_location_warn_title">Using network location</string>
+    <string name="network_location_warn_text">Unable to retrieve GPS location. Using network location instead. Positioning may be less accurate.</string>
 </resources>
