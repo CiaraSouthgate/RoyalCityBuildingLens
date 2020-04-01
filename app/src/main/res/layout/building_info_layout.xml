@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/buildingCardParent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:alpha="0.93"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:id="@+id/buildingCardContents"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.90"
+        android:background="#FFFFFF"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/addressView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/merriweather"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            tools:text="37 Agnes Street" />
+
+        <TextView
+            android:id="@+id/bldgNameView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/merriweather"
+            android:textColor="#000"
+            android:textSize="24sp"
+            tools:text="Agnes Court" />
+
+        <TextView
+            android:id="@+id/latLngView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto"
+            android:textSize="14sp"
+            tools:text="49.209969, -122.900730" />
+
+        <ListView
+            android:id="@+id/buildingAttrList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/locationCircle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:alpha=".9"
+        android:background="@null"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/circle_white_64dp"
+        tools:visibility="gone" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

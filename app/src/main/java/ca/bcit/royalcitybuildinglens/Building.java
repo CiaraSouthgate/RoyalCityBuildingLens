@@ -3,14 +3,16 @@ package ca.bcit.royalcitybuildinglens;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.location.Location;
+import android.util.Pair;
 
 import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.List;
 
 public class Building {
     /** Building ID number */
@@ -103,23 +105,24 @@ public class Building {
         this.buildingName = other.buildingName;
     }
 
-    public HashMap<String, String> getFields() {
+    public List<Pair<String, String>> getFields() {
         Resources res = Resources.getSystem();
-        HashMap<String, String> fields = new HashMap<>();
-        fields.put(res.getString(R.string.built_in), this.getYearBuiltString());
+//        HashMap<String, String> fields = new HashMap<>();
+        List<Pair<String, String>> fields = new ArrayList<>();
+        fields.add(Pair.create(res.getString(R.string.built_in), this.getYearBuiltString()));
         if (developer != null && !developer.isEmpty())
-            fields.put(res.getString(R.string.developed_by), developer);
+            fields.add(Pair.create(res.getString(R.string.developed_by), developer));
         if (architect != null && !architect.isEmpty())
-            fields.put(res.getString(R.string.architect), architect);
-        fields.put(res.getString(R.string.num_res), Integer.toString(numResidence));
-        fields.put(res.getString(R.string.floors_above), Integer.toString(floorsAbove));
-        fields.put(res.getString(R.string.floors_below), Integer.toString(floorsBelow));
-        fields.put(res.getString(R.string.area_above), Double.toString(areaAbove));
-        fields.put(res.getString(R.string.area_below), Double.toString(areaBelow));
-        fields.put(res.getString(R.string.footprint), Double.toString(footprint));
-        fields.put(res.getString(R.string.site_coverage), Double.toString(siteCoverage));
+            fields.add(Pair.create(res.getString(R.string.architect), architect));
+        fields.add(Pair.create(res.getString(R.string.num_res), Integer.toString(numResidence)));
+        fields.add(Pair.create(res.getString(R.string.floors_above), Integer.toString(floorsAbove)));
+        fields.add(Pair.create(res.getString(R.string.floors_below), Integer.toString(floorsBelow)));
+        fields.add(Pair.create(res.getString(R.string.area_above), Double.toString(areaAbove)));
+        fields.add(Pair.create(res.getString(R.string.area_below), Double.toString(areaBelow)));
+        fields.add(Pair.create(res.getString(R.string.footprint), Double.toString(footprint)));
+        fields.add(Pair.create(res.getString(R.string.site_coverage), Double.toString(siteCoverage)));
         if (yearMoved != 0)
-            fields.put(res.getString(R.string.moved_in), Integer.toString(yearMoved));
+            fields.add(Pair.create(res.getString(R.string.moved_in), Integer.toString(yearMoved)));
 
         return fields;
     }
@@ -267,6 +270,10 @@ public class Building {
         }
     }
 
+    public String getAddress() {
+        return streetNum + getStreetNameString();
+    }
+
     /**
      * @return String
      */
@@ -286,6 +293,8 @@ public class Building {
      * @return String
      */
     public String getBuildingNameString() {
+        if (buildingName == null || buildingName.isEmpty())
+            return null;
         return toTitleCase(buildingName);
     }
 
