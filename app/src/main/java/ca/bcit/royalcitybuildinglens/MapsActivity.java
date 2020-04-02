@@ -294,11 +294,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (lastKnownLocation == null) {
                 lastKnownLocation = locationManager
                         .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                System.out.println("USING NETWORK LOCATION");
                 new AlertDialog.Builder(this).setTitle(R.string.network_location_warn_title)
                         .setMessage(R.string.network_location_warn_text).setNeutralButton(R.string.ok,
                         (dialog, which) -> {
 
                         }).show();
+            } else {
+                System.out.println("USING GPS LOCATION");
             }
             try {
                 currentLocation = lastKnownLocation;
@@ -330,6 +333,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setMessage(R.string.confirm_refresh_text)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     loadingCard.setVisibility(View.VISIBLE);
+                    refreshButton.setVisibility(View.GONE);
+                    arButton.setVisibility(View.GONE);
                     readData();
                 })
                 .setNegativeButton(R.string.cancel, null).show();

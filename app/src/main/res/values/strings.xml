@@ -18,7 +18,7 @@
     <string name="area_below">Area below ground: </string>
     <string name="footprint">Footprint: </string>
     <string name="site_coverage">Site coverage: </string>
-    <string name="moved_in">Moved in: </string>
+    <string name="year_moved">Moved in: </string>
     <string name="distance">Distance from current location: %dM</string>
     <string name="confirm_refresh_title">Refresh building data?</string>
     <string name="confirm_refresh_text">This may take a few minutes.</string>

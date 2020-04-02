@@ -1,20 +1,18 @@
 package ca.bcit.royalcitybuildinglens;
 
 import android.annotation.SuppressLint;
-import android.content.res.Resources;
 import android.location.Location;
-import android.util.Pair;
 
 import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class Building {
+    private static final String SQ_METERS = "sq. meters";
+
     /** Building ID number */
     @SerializedName("BLDG_ID")
     private int id;
@@ -105,28 +103,6 @@ public class Building {
         this.buildingName = other.buildingName;
     }
 
-    public List<Pair<String, String>> getFields() {
-        Resources res = Resources.getSystem();
-//        HashMap<String, String> fields = new HashMap<>();
-        List<Pair<String, String>> fields = new ArrayList<>();
-        fields.add(Pair.create(res.getString(R.string.built_in), this.getYearBuiltString()));
-        if (developer != null && !developer.isEmpty())
-            fields.add(Pair.create(res.getString(R.string.developed_by), developer));
-        if (architect != null && !architect.isEmpty())
-            fields.add(Pair.create(res.getString(R.string.architect), architect));
-        fields.add(Pair.create(res.getString(R.string.num_res), Integer.toString(numResidence)));
-        fields.add(Pair.create(res.getString(R.string.floors_above), Integer.toString(floorsAbove)));
-        fields.add(Pair.create(res.getString(R.string.floors_below), Integer.toString(floorsBelow)));
-        fields.add(Pair.create(res.getString(R.string.area_above), Double.toString(areaAbove)));
-        fields.add(Pair.create(res.getString(R.string.area_below), Double.toString(areaBelow)));
-        fields.add(Pair.create(res.getString(R.string.footprint), Double.toString(footprint)));
-        fields.add(Pair.create(res.getString(R.string.site_coverage), Double.toString(siteCoverage)));
-        if (yearMoved != 0)
-            fields.add(Pair.create(res.getString(R.string.moved_in), Integer.toString(yearMoved)));
-
-        return fields;
-    }
-
     /**
      * Formats a word into title case
      * @param word String
@@ -152,6 +128,11 @@ public class Building {
         } else {
             return null;
         }
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String getLatLngString() {
+        return String.format("%.6f", location_lat) + ", " + String.format("%.6f", location_long);
     }
 
     /**
@@ -271,7 +252,7 @@ public class Building {
     }
 
     public String getAddress() {
-        return streetNum + getStreetNameString();
+        return streetNum + " " + getStreetNameString();
     }
 
     /**
@@ -305,6 +286,10 @@ public class Building {
         return floorsAbove;
     }
 
+    public String getFloorsAboveString() {
+        return Integer.toString(floorsAbove);
+    }
+
     /**
      * @param floorsAbove int
      */
@@ -317,6 +302,10 @@ public class Building {
      */
     public int getFloorsBelow() {
         return floorsBelow;
+    }
+
+    public String getFloorsBelowString() {
+        return Integer.toString(floorsBelow);
     }
 
     /**
@@ -333,6 +322,10 @@ public class Building {
         return siteCoverage;
     }
 
+    public String getSiteCoverageString() {
+        return siteCoverage + " " + SQ_METERS;
+    }
+
     /**
      * @param siteCoverage double
      */
@@ -345,6 +338,10 @@ public class Building {
      */
     public double getFootprint() {
         return footprint;
+    }
+
+    public String getFootprintString() {
+        return footprint + " " + SQ_METERS;
     }
 
     /**
@@ -361,6 +358,10 @@ public class Building {
         return numResidence;
     }
 
+    public String getNumResidenceString() {
+        return Integer.toString(numResidence);
+    }
+
     /**
      * @param numResidence int
      */
@@ -375,6 +376,10 @@ public class Building {
         return areaAbove;
     }
 
+    public String getAreaAboveString() {
+        return areaAbove + " " + SQ_METERS;
+    }
+
     /**
      * @param areaAbove double
      */
@@ -387,6 +392,10 @@ public class Building {
      */
     public double getAreaBelow() {
         return areaBelow;
+    }
+
+    public String getAreaBelowString() {
+        return areaBelow + " " + SQ_METERS;
     }
 
     /**
@@ -439,6 +448,8 @@ public class Building {
     }
 
     public String getDeveloperString() {
+        if (developer == null || developer.isEmpty())
+            return null;
         return toTitleCase(developer);
     }
 
@@ -461,6 +472,8 @@ public class Building {
      * @return String
      */
     public String getArchitectString() {
+        if (architect == null || architect.isEmpty())
+            return null;
         return toTitleCase(architect);
     }
 
@@ -469,6 +482,12 @@ public class Building {
      */
     public int getYearMoved() {
         return yearMoved;
+    }
+
+    public String getYearMovedString() {
+        if (yearMoved == 0)
+            return null;
+        return Integer.toString(yearMoved);
     }
 
     /**

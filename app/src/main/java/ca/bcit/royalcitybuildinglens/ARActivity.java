@@ -1,12 +1,13 @@
 package ca.bcit.royalcitybuildinglens;
 
 import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,19 +39,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
-import uk.co.appoly.arcorelocation.rendering.LocationNode;
-import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
 
 public class ARActivity extends AppCompatActivity {
     private static final String TAG = "ARActivity";
     private ArSceneView arSceneView;
-    private ArrayList<ViewRenderable> buildingRenderables = new ArrayList<ViewRenderable>();
-
-    private ViewRenderable buildingRenderable0;
-    private ViewRenderable buildingRenderable1;
-    private ViewRenderable buildingRenderable2;
+    private ArrayList<ViewRenderable> buildingRenderables = new ArrayList<>();
 
     private LocationScene locationScene;
     private boolean hasFinishedLoading = false;
@@ -59,38 +54,31 @@ public class ARActivity extends AppCompatActivity {
 
     private ArrayList<Building> buildings;
 
+    private int bldgsToDisplay = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar);
         arSceneView = findViewById(R.id.ar_scene_view);
 
-        Intent i = getIntent();
-        String buildingsJson = i.getStringExtra("buildings");
+        Intent intent = getIntent();
         Type buildingsType = new TypeToken<ArrayList<Building>>(){}.getType();
-        buildings = new Gson().fromJson(buildingsJson, buildingsType);
+        buildings = new Gson().fromJson(intent.getStringExtra("buildings"), buildingsType);
         buildings.forEach(Building::restoreLocation);
         buildings.forEach(System.out::println);
 
         // Build building information renderable from building_info_Layout.xml
-        CompletableFuture<ViewRenderable> buildingLayout0 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.building_info_layout0)
-                        .build();
-        CompletableFuture<ViewRenderable> buildingLayout1 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.building_info_layout1)
-                        .build();
+        ArrayList<CompletableFuture<ViewRenderable>> buildingLayouts = new ArrayList<>();
+        for (int i = 0; i < bldgsToDisplay; i++) {
+            buildingLayouts.add(
+                    ViewRenderable.builder()
+                    .setView(this, R.layout.building_info_layout)
+                    .build()
+            );
+        }
 
-        CompletableFuture<ViewRenderable> buildingLayout2 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.building_info_layout2)
-                        .build();
-
-        CompletableFuture.allOf(
-                buildingLayout0,
-                buildingLayout1,
-                buildingLayout2)
+        CompletableFuture.allOf(buildingLayouts.toArray(new CompletableFuture[0]))
                 .handle(
                         (notUsed, throwable) -> {
                             // When Renderable is builded, Sceneform loads its resources
@@ -105,13 +93,8 @@ public class ARActivity extends AppCompatActivity {
                             }
 
                             try {
-                                buildingRenderable0 = buildingLayout0.get();
-                                buildingRenderable1 = buildingLayout1.get();
-                                buildingRenderable2 = buildingLayout2.get();
-
-                                buildingRenderables.add(buildingRenderable0);
-                                buildingRenderables.add(buildingRenderable1);
-                                buildingRenderables.add(buildingRenderable2);
+                                for (CompletableFuture<ViewRenderable> layout : buildingLayouts)
+                                    buildingRenderables.add(layout.get());
                                 hasFinishedLoading = true;
 
                             } catch (InterruptedException | ExecutionException ex) {
@@ -136,75 +119,78 @@ public class ARActivity extends AppCompatActivity {
                                 ArrayList<LocationMarker> locationMarkers = new ArrayList<LocationMarker>();
 
                                 // Building building information with layout( getBuildingView() )
-                                for(int j = 0; j < 3; j ++){
+                                for (int i = 0; i < bldgsToDisplay; i++){
                                     LocationMarker layoutLocationMarker = new LocationMarker(
-                                            buildings.get(j).getLocation().getLongitude(),
-                                            buildings.get(j).getLocation().getLatitude(),
-                                            getBuildingView(j)
+                                            buildings.get(i).getLocation().getLongitude(),
+                                            buildings.get(i).getLocation().getLatitude(),
+                                            getBuildingView(i)
                                     );
+
+                                    int index = i; // Can't pass a loop variable to an inner class
+                                    layoutLocationMarker.setRenderEvent(locationNode -> {
+                                        View card = buildingRenderables.get(index).getView();
+
+                                        ImageButton circle = card.findViewById(R.id.locationCircle);
+                                        LinearLayout container = card.findViewById(R.id.buildingCardContents);
+
+                                        LinearLayout developerRow = card.findViewById(R.id.developerRow);
+                                        LinearLayout architectRow = card.findViewById(R.id.architectRow);
+                                        LinearLayout yearMovedRow = card.findViewById(R.id.yearMovedRow);
+                                        
+                                        TextView addrView = card.findViewById(R.id.addressView);
+                                        TextView bldgNameView = card.findViewById(R.id.bldgNameView);
+                                        TextView latLngView = card.findViewById(R.id.latLngView);
+                                        TextView builtInView = card.findViewById(R.id.builtInView);
+                                        TextView developerView = card.findViewById(R.id.developerView);
+                                        TextView architectView = card.findViewById(R.id.architectView);
+                                        TextView numResView = card.findViewById(R.id.numResView);
+                                        TextView floorsAboveView = card.findViewById(R.id.floorsAboveView);
+                                        TextView floorsBelowView = card.findViewById(R.id.floorsBelowView);
+                                        TextView areaAboveView = card.findViewById(R.id.areaAboveView);
+                                        TextView areaBelowView = card.findViewById(R.id.areaBelowView);
+                                        TextView footprintView = card.findViewById(R.id.footprintView);
+                                        TextView siteCoverageView = card.findViewById(R.id.siteCoverageView);
+                                        TextView yearMovedView = card.findViewById(R.id.yearMovedView);
+
+                                        Building building = buildings.get(index);
+
+                                        addrView.setText(building.getAddress());
+                                        if (building.getBuildingNameString() != null)
+                                            bldgNameView.setText(building.getBuildingNameString());
+                                        else
+                                            bldgNameView.setVisibility(View.GONE);
+                                        latLngView.setText(building.getLatLngString());
+                                        builtInView.setText(building.getYearBuiltString());
+                                        if (building.getDeveloperString() != null)
+                                            developerView.setText(building.getDeveloperString());
+                                        else
+                                            developerRow.setVisibility(View.GONE);
+                                        if (building.getArchitectString() != null)
+                                            architectView.setText(building.getArchitectString());
+                                        else
+                                            architectRow.setVisibility(View.GONE);
+                                        numResView.setText(building.getNumResidenceString());
+                                        floorsAboveView.setText(building.getFloorsAboveString());
+                                        floorsBelowView.setText(building.getFloorsBelowString());
+                                        areaAboveView.setText(building.getAreaAboveString());
+                                        areaBelowView.setText(building.getAreaBelowString());
+                                        footprintView.setText(building.getFootprintString());
+                                        siteCoverageView.setText(building.getSiteCoverageString());
+                                        if (building.getYearMovedString() != null)
+                                            yearMovedView.setText(building.getYearMoved());
+                                        else
+                                            yearMovedRow.setVisibility(View.GONE);
+
+                                        circle.setOnClickListener(v -> {
+                                            if (container.getVisibility() == View.GONE)
+                                                container.setVisibility(View.VISIBLE);
+                                            else
+                                                container.setVisibility(View.GONE);
+                                        });
+
+                                    });
                                     locationMarkers.add(layoutLocationMarker);
                                 }
-                                // An example "onRender" event, called every frame
-                                // Updates the layout with the markers distance
-                                locationMarkers.get(0).setRenderEvent(new LocationNodeRender() {
-                                    @Override
-                                    public void render(LocationNode node) {
-                                        View eView = buildingRenderable0.getView();
-                                        TextView nameTextView = eView.findViewById(R.id.building_name0);
-                                        TextView attrTextView = eView.findViewById(R.id.building_attr0);
-                                        TextView distanceTextView = eView.findViewById(R.id.building_dist0);
-                                        String attr = "ID: "+ buildings.get(0).getId()+"\n"
-                                                + "MapRef: " + buildings.get(0).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(0).getUnitNum() +" "
-                                                + buildings.get(0).getStreetNum() +" "
-                                                + buildings.get(0).getStreetName()+"\n"
-                                                + "Builder: " + buildings.get(0).getDeveloper()+"\n"
-                                                + "Architect: " + buildings.get(0).getArchitect()+"\n"
-                                                + "Year Built: " + buildings.get(0).getYearBuilt()+"\n"
-                                                + "Year Moved: " + buildings.get(0).getYearMoved();
-                                        nameTextView.setText(buildings.get(0).getBuildingName());
-                                        attrTextView.setText(attr);
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                    }
-                                });
-                                locationMarkers.get(1).setRenderEvent(new LocationNodeRender() {
-                                    @Override
-                                    public void render(LocationNode node) {
-                                        View eView = buildingRenderable1.getView();
-                                        TextView nameTextView = eView.findViewById(R.id.building_name1);
-                                        TextView attrTextView = eView.findViewById(R.id.building_attr1);
-                                        TextView distanceTextView = eView.findViewById(R.id.building_dist1);
-                                        String attr = "ID: "+ buildings.get(1).getId()+"\n"
-                                                + "MapRef: " + buildings.get(1).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(1).getUnitNum() + buildings.get(1).getStreetNum() + buildings.get(1).getStreetName()+"\n"
-                                                + "Builder: " + buildings.get(1).getDeveloper()+"\n"
-                                                + "Architect: " + buildings.get(1).getArchitect()+"\n"
-                                                + "Year Built: " + buildings.get(1).getYearBuilt()+"\n"
-                                                + "Year Moved: " + buildings.get(1).getYearMoved();
-                                        nameTextView.setText(buildings.get(1).getBuildingName());
-                                        attrTextView.setText(attr);
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                    }
-                                });
-                                locationMarkers.get(2).setRenderEvent(new LocationNodeRender() {
-                                    @Override
-                                    public void render(LocationNode node) {
-                                        View eView = buildingRenderable2.getView();
-                                        TextView nameTextView = eView.findViewById(R.id.building_name2);
-                                        TextView attrTextView = eView.findViewById(R.id.building_attr2);
-                                        TextView distanceTextView = eView.findViewById(R.id.building_dist2);
-                                        String attr = "ID: "+ buildings.get(2).getId()+"\n"
-                                                + "MapRef: " + buildings.get(2).getMapRef()+"\n"
-                                                + "Address: " + buildings.get(2).getUnitNum() + buildings.get(2).getStreetNum() + buildings.get(2).getStreetName()+"\n"
-                                                + "Builder: " + buildings.get(2).getDeveloper()+"\n"
-                                                + "Architect: " + buildings.get(2).getArchitect()+"\n"
-                                                + "Year Built: " + buildings.get(2).getYearBuilt()+"\n"
-                                                + "Year Moved: " + buildings.get(2).getYearMoved();
-                                        nameTextView.setText(buildings.get(2).getBuildingName());
-                                        attrTextView.setText(attr);
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                    }
-                                });
                                 // Adding the marker
                                 locationScene.mLocationMarkers.addAll(locationMarkers);
                             }
@@ -231,22 +217,14 @@ public class ARActivity extends AppCompatActivity {
                             }
                         });
         ARLocationPermissionHelper.requestPermission(this);
-
     }
+
     private Node getBuildingView(int index) {
         Node base = new Node();
         base.setRenderable(buildingRenderables.get(index));
-        Context c = this;
-        // Add  listeners etc here
-        View eView = buildingRenderable0.getView();
-        eView.setOnTouchListener((v, event) -> {
-            Toast.makeText(
-                    c, "Touched.", Toast.LENGTH_LONG)
-                    .show();
-            return false;
-        });
         return base;
     }
+
     @Override
     protected void onResume() {
         super.onResume();
