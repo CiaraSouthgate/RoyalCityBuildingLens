@@ -3,7 +3,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="building_attr_url">http://opendata.newwestcity.ca/downloads/building-attributes/BUILDING_ATTRIBUTES.json</string>
     <string name="building_age_url">http://opendata.newwestcity.ca/downloads/building-age/BUILDING_AGE.json</string>
-    <string name="open_in_ar">Open in AR</string>
+    <string name="open_in_ar">View in AR</string>
     <string name="loading_data">Retrieving building data…</string>
     <string name="loading_failed">Failed to retrieve data</string>
     <string name="try_again">Try again</string>
