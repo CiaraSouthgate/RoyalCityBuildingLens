@@ -1,16 +1,15 @@
 package ca.bcit.royalcitybuildinglens;
 
 import android.app.Activity;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.ArCoreApk;
@@ -28,26 +27,34 @@ import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ViewRenderable;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
-import uk.co.appoly.arcorelocation.rendering.LocationNode;
-import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
 
 public class ARActivity extends AppCompatActivity {
     private static final String TAG = "ARActivity";
     private ArSceneView arSceneView;
-    private ViewRenderable buildingRenderable;
+    private ArrayList<ViewRenderable> buildingRenderables = new ArrayList<>();
+
     private LocationScene locationScene;
     private boolean hasFinishedLoading = false;
     private Snackbar loadingMessageSnackbar = null;
     private boolean installRequested;
 
+    private ArrayList<Building> buildings;
+
+    private int bldgsToDisplay = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +62,23 @@ public class ARActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ar);
         arSceneView = findViewById(R.id.ar_scene_view);
 
-        // Build building information renderable from building_info_Layout.xml
-        CompletableFuture<ViewRenderable> buildingLayout =
-                ViewRenderable.builder()
-                .setView(this, R.layout.building_info_layout)
-                .build();
+        Intent intent = getIntent();
+        Type buildingsType = new TypeToken<ArrayList<Building>>(){}.getType();
+        buildings = new Gson().fromJson(intent.getStringExtra("buildings"), buildingsType);
+        buildings.forEach(Building::restoreLocation);
+        buildings.forEach(System.out::println);
 
-        CompletableFuture.allOf(
-                buildingLayout)
+        // Build building information renderable from building_info_Layout.xml
+        ArrayList<CompletableFuture<ViewRenderable>> buildingLayouts = new ArrayList<>();
+        for (int i = 0; i < bldgsToDisplay; i++) {
+            buildingLayouts.add(
+                    ViewRenderable.builder()
+                    .setView(this, R.layout.building_info_layout)
+                    .build()
+            );
+        }
+
+        CompletableFuture.allOf(buildingLayouts.toArray(new CompletableFuture[0]))
                 .handle(
                         (notUsed, throwable) -> {
                             // When Renderable is builded, Sceneform loads its resources
@@ -77,7 +93,8 @@ public class ARActivity extends AppCompatActivity {
                             }
 
                             try {
-                                buildingRenderable = buildingLayout.get();
+                                for (CompletableFuture<ViewRenderable> layout : buildingLayouts)
+                                    buildingRenderables.add(layout.get());
                                 hasFinishedLoading = true;
 
                             } catch (InterruptedException | ExecutionException ex) {
@@ -88,7 +105,6 @@ public class ARActivity extends AppCompatActivity {
 
                             return null;
                         });
-
         arSceneView
                 .getScene()
                 .setOnUpdateListener(
@@ -100,27 +116,83 @@ public class ARActivity extends AppCompatActivity {
                             if (locationScene == null) {
 
                                 locationScene = new LocationScene(this, this, arSceneView);
+                                ArrayList<LocationMarker> locationMarkers = new ArrayList<LocationMarker>();
 
                                 // Building building information with layout( getBuildingView() )
-                                LocationMarker layoutLocationMarker = new LocationMarker(
-                                        -122.906509,
-                                        49.203645,
-                                        getBuildingView()
-                                );
+                                for (int i = 0; i < bldgsToDisplay; i++){
+                                    LocationMarker layoutLocationMarker = new LocationMarker(
+                                            buildings.get(i).getLocation().getLongitude(),
+                                            buildings.get(i).getLocation().getLatitude(),
+                                            getBuildingView(i)
+                                    );
 
-                                // An example "onRender" event, called every frame
-                                // Updates the layout with the markers distance
-                                layoutLocationMarker.setRenderEvent(new LocationNodeRender() {
-                                    @Override
-                                    public void render(LocationNode node) {
-                                        View eView = buildingRenderable.getView();
-                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-                                        distanceTextView.setText(node.getDistance() + "M");
-                                    }
-                                });
+                                    int index = i; // Can't pass a loop variable to an inner class
+                                    layoutLocationMarker.setRenderEvent(locationNode -> {
+                                        View card = buildingRenderables.get(index).getView();
+
+                                        ImageButton circle = card.findViewById(R.id.locationCircle);
+                                        LinearLayout container = card.findViewById(R.id.buildingCardContents);
+
+                                        LinearLayout developerRow = card.findViewById(R.id.developerRow);
+                                        LinearLayout architectRow = card.findViewById(R.id.architectRow);
+                                        LinearLayout yearMovedRow = card.findViewById(R.id.yearMovedRow);
+                                        
+                                        TextView addrView = card.findViewById(R.id.addressView);
+                                        TextView bldgNameView = card.findViewById(R.id.bldgNameView);
+                                        TextView latLngView = card.findViewById(R.id.latLngView);
+                                        TextView builtInView = card.findViewById(R.id.builtInView);
+                                        TextView developerView = card.findViewById(R.id.developerView);
+                                        TextView architectView = card.findViewById(R.id.architectView);
+                                        TextView numResView = card.findViewById(R.id.numResView);
+                                        TextView floorsAboveView = card.findViewById(R.id.floorsAboveView);
+                                        TextView floorsBelowView = card.findViewById(R.id.floorsBelowView);
+                                        TextView areaAboveView = card.findViewById(R.id.areaAboveView);
+                                        TextView areaBelowView = card.findViewById(R.id.areaBelowView);
+                                        TextView footprintView = card.findViewById(R.id.footprintView);
+                                        TextView siteCoverageView = card.findViewById(R.id.siteCoverageView);
+                                        TextView yearMovedView = card.findViewById(R.id.yearMovedView);
+
+                                        Building building = buildings.get(index);
+
+                                        addrView.setText(building.getAddress());
+                                        if (building.getBuildingNameString() != null)
+                                            bldgNameView.setText(building.getBuildingNameString());
+                                        else
+                                            bldgNameView.setVisibility(View.GONE);
+                                        latLngView.setText(building.getLatLngString());
+                                        builtInView.setText(building.getYearBuiltString());
+                                        if (building.getDeveloperString() != null)
+                                            developerView.setText(building.getDeveloperString());
+                                        else
+                                            developerRow.setVisibility(View.GONE);
+                                        if (building.getArchitectString() != null)
+                                            architectView.setText(building.getArchitectString());
+                                        else
+                                            architectRow.setVisibility(View.GONE);
+                                        numResView.setText(building.getNumResidenceString());
+                                        floorsAboveView.setText(building.getFloorsAboveString());
+                                        floorsBelowView.setText(building.getFloorsBelowString());
+                                        areaAboveView.setText(building.getAreaAboveString());
+                                        areaBelowView.setText(building.getAreaBelowString());
+                                        footprintView.setText(building.getFootprintString());
+                                        siteCoverageView.setText(building.getSiteCoverageString());
+                                        if (building.getYearMovedString() != null)
+                                            yearMovedView.setText(building.getYearMoved());
+                                        else
+                                            yearMovedRow.setVisibility(View.GONE);
+
+                                        circle.setOnClickListener(v -> {
+                                            if (container.getVisibility() == View.GONE)
+                                                container.setVisibility(View.VISIBLE);
+                                            else
+                                                container.setVisibility(View.GONE);
+                                        });
+
+                                    });
+                                    locationMarkers.add(layoutLocationMarker);
+                                }
                                 // Adding the marker
-                                locationScene.mLocationMarkers.add(layoutLocationMarker);
-
+                                locationScene.mLocationMarkers.addAll(locationMarkers);
                             }
 
                             Frame frame = arSceneView.getArFrame();
@@ -136,30 +208,23 @@ public class ARActivity extends AppCompatActivity {
                                 locationScene.processFrame(frame);
                             }
 
-//                            if (loadingMessageSnackbar != null) {
-//                                for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
-//                                    if (plane.getTrackingState() == TrackingState.TRACKING) {
-//                                        hideLoadingMessage();
-//                                    }
-//                                }
-//                            }
+                            if (loadingMessageSnackbar != null) {
+                                for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
+                                    if (plane.getTrackingState() == TrackingState.TRACKING) {
+                                        hideLoadingMessage();
+                                    }
+                                }
+                            }
                         });
+        ARLocationPermissionHelper.requestPermission(this);
     }
-    private Node getBuildingView() {
-        Node base = new Node();
-        base.setRenderable(buildingRenderable);
-        Context c = this;
-        // Add  listeners etc here
-        View eView = buildingRenderable.getView();
-        eView.setOnTouchListener((v, event) -> {
-            Toast.makeText(
-                    c, "Touched.", Toast.LENGTH_LONG)
-                    .show();
-            return false;
-        });
 
+    private Node getBuildingView(int index) {
+        Node base = new Node();
+        base.setRenderable(buildingRenderables.get(index));
         return base;
     }
+
     @Override
     protected void onResume() {
         super.onResume();

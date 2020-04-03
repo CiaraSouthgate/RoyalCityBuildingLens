@@ -1,12 +1,18 @@
 package ca.bcit.royalcitybuildinglens;
 
-import com.google.gson.annotations.SerializedName;
+import android.annotation.SuppressLint;
 import android.location.Location;
+
+import com.google.gson.annotations.SerializedName;
+
 import org.json.JSONArray;
 import org.json.JSONException;
+
 import java.util.Calendar;
 
 public class Building {
+    private static final String SQ_METERS = "sq. meters";
+
     /** Building ID number */
     @SerializedName("BLDG_ID")
     private int id;
@@ -49,15 +55,15 @@ public class Building {
 
     /** Number of floors above ground */
     @SerializedName("NUM_A_GRND")
-    private int numAbove;
+    private int floorsAbove;
 
     /** Number of floors below ground */
     @SerializedName("NUM_B_GRND")
-    private int numBelow;
+    private int floorsBelow;
 
     /** Area of the site coverage of this building in square metres */
     @SerializedName("SQM_SITCVR")
-    private double sqMeter;
+    private double siteCoverage;
 
     /** Area of the footprint of this building in square metres */
     @SerializedName("SQM_FTPRNT")
@@ -69,17 +75,20 @@ public class Building {
 
     /** Area above ground in square metres */
     @SerializedName("SQM_A_GRND")
-    private double sqmAbove;
+    private double areaAbove;
 
     /** Area below ground in square metres*/
     @SerializedName("SQM_B_GRND")
-    private double sqmBelow;
+    private double areaBelow;
 
     /** Array of lat & lon values representing the footprint of this building */
     private JSONArray coordinates;
 
     /** Single averaged lat & long value representing the location of this building */
     private Location location;
+
+    private double location_lat;
+    private double location_long;
 
     /**
      * Merges two building objects together
@@ -119,6 +128,11 @@ public class Building {
         } else {
             return null;
         }
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String getLatLngString() {
+        return String.format("%.6f", location_lat) + ", " + String.format("%.6f", location_long);
     }
 
     /**
@@ -237,6 +251,10 @@ public class Building {
         }
     }
 
+    public String getAddress() {
+        return streetNum + " " + getStreetNameString();
+    }
+
     /**
      * @return String
      */
@@ -256,49 +274,63 @@ public class Building {
      * @return String
      */
     public String getBuildingNameString() {
+        if (buildingName == null || buildingName.isEmpty())
+            return null;
         return toTitleCase(buildingName);
     }
 
     /**
      * @return int
      */
-    public int getNumAbove() {
-        return numAbove;
+    public int getFloorsAbove() {
+        return floorsAbove;
+    }
+
+    public String getFloorsAboveString() {
+        return Integer.toString(floorsAbove);
     }
 
     /**
-     * @param numAbove int
+     * @param floorsAbove int
      */
-    public void setNumAbove(int numAbove) {
-        this.numAbove = numAbove;
+    public void setFloorsAbove(int floorsAbove) {
+        this.floorsAbove = floorsAbove;
     }
 
     /**
      * @return int
      */
-    public int getNumBelow() {
-        return numBelow;
+    public int getFloorsBelow() {
+        return floorsBelow;
+    }
+
+    public String getFloorsBelowString() {
+        return Integer.toString(floorsBelow);
     }
 
     /**
-     * @param numBelow int
+     * @param floorsBelow int
      */
-    public void setNumBelow(int numBelow) {
-        this.numBelow = numBelow;
+    public void setFloorsBelow(int floorsBelow) {
+        this.floorsBelow = floorsBelow;
     }
 
     /**
      * @return double
      */
-    public double getSqMeter() {
-        return sqMeter;
+    public double getSiteCoverage() {
+        return siteCoverage;
+    }
+
+    public String getSiteCoverageString() {
+        return siteCoverage + " " + SQ_METERS;
     }
 
     /**
-     * @param sqMeter double
+     * @param siteCoverage double
      */
-    public void setSqMeter(double sqMeter) {
-        this.sqMeter = sqMeter;
+    public void setSiteCoverage(double siteCoverage) {
+        this.siteCoverage = siteCoverage;
     }
 
     /**
@@ -306,6 +338,10 @@ public class Building {
      */
     public double getFootprint() {
         return footprint;
+    }
+
+    public String getFootprintString() {
+        return footprint + " " + SQ_METERS;
     }
 
     /**
@@ -322,6 +358,10 @@ public class Building {
         return numResidence;
     }
 
+    public String getNumResidenceString() {
+        return Integer.toString(numResidence);
+    }
+
     /**
      * @param numResidence int
      */
@@ -332,29 +372,37 @@ public class Building {
     /**
      * @return double
      */
-    public double getSqmAbove() {
-        return sqmAbove;
+    public double getAreaAbove() {
+        return areaAbove;
+    }
+
+    public String getAreaAboveString() {
+        return areaAbove + " " + SQ_METERS;
     }
 
     /**
-     * @param sqmAbove double
+     * @param areaAbove double
      */
-    public void setSqmAbove(double sqmAbove) {
-        this.sqmAbove = sqmAbove;
+    public void setAreaAbove(double areaAbove) {
+        this.areaAbove = areaAbove;
     }
 
     /**
      * @return double
      */
-    public double getSqmBelow() {
-        return sqmBelow;
+    public double getAreaBelow() {
+        return areaBelow;
+    }
+
+    public String getAreaBelowString() {
+        return areaBelow + " " + SQ_METERS;
     }
 
     /**
-     * @param sqmBelow double
+     * @param areaBelow double
      */
-    public void setSqmBelow(double sqmBelow) {
-        this.sqmBelow = sqmBelow;
+    public void setAreaBelow(double areaBelow) {
+        this.areaBelow = areaBelow;
     }
 
     /**
@@ -380,6 +428,11 @@ public class Building {
         return year - yearBuilt;
     }
 
+    @SuppressLint("DefaultLocale")
+    public String getYearBuiltString() {
+        return String.format("%d (%d years old)", getYearBuilt(), getBuildingAge());
+    }
+
     /**
      * @return String
      */
@@ -395,6 +448,8 @@ public class Building {
     }
 
     public String getDeveloperString() {
+        if (developer == null || developer.isEmpty())
+            return null;
         return toTitleCase(developer);
     }
 
@@ -417,6 +472,8 @@ public class Building {
      * @return String
      */
     public String getArchitectString() {
+        if (architect == null || architect.isEmpty())
+            return null;
         return toTitleCase(architect);
     }
 
@@ -425,6 +482,12 @@ public class Building {
      */
     public int getYearMoved() {
         return yearMoved;
+    }
+
+    public String getYearMovedString() {
+        if (yearMoved == 0)
+            return null;
+        return Integer.toString(yearMoved);
     }
 
     /**
@@ -453,6 +516,15 @@ public class Building {
      * @param location location
      */
     public void setLocation(Location location) {
+        this.location_lat = location.getLatitude();
+        this.location_long = location.getLongitude();
+        this.location = location;
+    }
+
+    public void restoreLocation() {
+        Location location = new Location("");
+        location.setLatitude(this.location_lat);
+        location.setLongitude(this.location_long);
         this.location = location;
     }
 
@@ -498,17 +570,19 @@ public class Building {
                 ", streetName='" + getStreetNameString() + '\'' +
                 ", buildingName='" + getBuildingNameString() + '\'' +
                 ", buildingAge=" + getBuildingAge() + " years old" +
-                ", numAbove=" + numAbove +
-                ", numBelow=" + numBelow +
-                ", sqMeter=" + sqMeter +
+                ", numAbove=" + floorsAbove +
+                ", numBelow=" + floorsBelow +
+                ", sqMeter=" + siteCoverage +
                 ", footprint=" + footprint +
                 ", numResidence=" + numResidence +
-                ", sqmAbove=" + sqmAbove +
-                ", sqmBelow=" + sqmBelow +
+                ", sqmAbove=" + areaAbove +
+                ", sqmBelow=" + areaBelow +
                 ", yearBuilt=" + yearBuilt +
                 ", developer='" + getDeveloperString() + '\'' +
                 ", architect='" + getArchitectString() + '\'' +
                 ", yearMoved=" + yearMoved +
-                '}';
+                ", coordinates=" + coordinates +
+                ", location=" + location +
+                "}";
     }
 }

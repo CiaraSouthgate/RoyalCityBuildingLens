@@ -1,31 +1,454 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/buildingCardParent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:alpha="0.93"
-    android:background="#a70a04"
-    android:padding="30dp">
+    android:background="@null">
 
-    <TextView
-        android:id="@+id/building_one_tv"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/buildingCardContents"
+        style="@style/Theme.MaterialComponents.Light.Dialog"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Army and Navy"
-        android:textColor="#fff" />
-    <TextView
-        android:id="@+id/testing"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/ARMY_NAVY_DEPARTMENT_STORE"
-        android:textColor="#fff"
-        android:textSize="24sp" />
+        android:alpha="0.90"
+        android:background="@drawable/rounded_borders"
+        android:orientation="vertical"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:visibility="visible">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#fff"
-        android:textSize="24sp" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/addressView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:fontFamily="@font/merriweather"
+            android:maxLines="1"
+            android:textColor="#000000"
+            android:textSize="36sp"
+            tools:text="37 Agnes Street" />
+
+        <TextView
+            android:id="@+id/bldgNameView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:fontFamily="@font/merriweather"
+            android:textColor="#000"
+            android:textSize="24sp"
+            tools:text="Agnes Court" />
+
+        <TextView
+            android:id="@+id/latLngView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:fontFamily="@font/roboto"
+            android:textSize="14sp"
+            tools:text="49.209969, -122.900730" />
+
+        <LinearLayout
+            android:id="@+id/builtInRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/builtInLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/built_in"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/builtInView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="1973 (47 years old)" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/developerRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/developerLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/developed_by"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/developerView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="Bosa Brothers" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/architectRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/architectLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/architect"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/architectView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="Hansen, Poul E." />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/numResRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/numResLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/num_res"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/numResView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="24" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/floorsAboveRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/floorsAboveLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/floors_above"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/floorsAboveView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="4" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/floorsBelowRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/floorsBelowLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/floors_below"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/floorsBelowView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/areaAboveRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/areaAboveLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/area_above"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/areaAboveView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="1842.17 sq metres" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/areaBelowRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/areaBelowLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/area_below"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/areaBelowView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="0 sq. meters" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/footprintRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/footprintLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/footprint"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/footprintView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="353.03 sq. meters" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/siteCoverageRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/siteCoverageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/site_coverage"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/siteCoverageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="585.29 sq. meters" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/yearMovedRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/yearMovedLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:text="@string/year_moved"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/yearMovedView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:clickable="false"
+                android:duplicateParentState="true"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="18sp"
+                tools:text="1991" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/locationCircle"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:alpha=".9"
+        android:background="@null"
+        android:tint="@color/colorPrimary"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buildingCardContents"
+        app:srcCompat="@drawable/circle_white_64dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
