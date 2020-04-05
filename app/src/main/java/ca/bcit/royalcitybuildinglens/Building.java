@@ -529,7 +529,7 @@ public class Building {
     }
 
     /**
-     * Calcuate an approximate latitude and longitude to represent this building by taking list of
+     * Calculate an approximate latitude and longitude to represent this building by taking list of
      * coordinates from its footprint and averaging them.
      */
     private void calculateLocation() {
@@ -560,7 +560,6 @@ public class Building {
     /**
      * @return String
      */
-    @Override
     public String toString() {
         return "Building{" +
                 "id=" + id +

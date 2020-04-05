@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Config;
@@ -28,10 +29,12 @@ import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import uk.co.appoly.arcorelocation.LocationMarker;
@@ -117,7 +120,7 @@ public class ARActivity extends AppCompatActivity {
                             if (locationScene == null) {
 
                                 locationScene = new LocationScene(this, this, arSceneView);
-                                ArrayList<LocationMarker> locationMarkers = new ArrayList<LocationMarker>();
+                                ArrayList<LocationMarker> locationMarkers = new ArrayList<>();
 
                                 // Applying building information to layout( getBuildingView() )
                                 for (int i = 0; i < bldgsToDisplay; i++){

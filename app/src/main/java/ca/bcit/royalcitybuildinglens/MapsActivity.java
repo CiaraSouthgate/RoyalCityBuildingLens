@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,9 +28,11 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
@@ -48,7 +52,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * MapsActivity - Entrypoint for the app that loads building data asynchronously and displays the
+ * MapsActivity - Entry point for the app that loads building data asynchronously and displays the
  * user's current location
  */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -64,7 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationListener locationListener;
     private JSONObject bldgAttributes;
     private JSONObject bldgAge;
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
     private HashMap<Integer, Building> buildings;
     private ArrayList<Building> sortedBuildings;
     private static Location currentLocation;
@@ -106,7 +110,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * Reads locally-stored building data and restores Building objects
-     * @return
+     * @return HashMap
      */
     private HashMap<Integer, Building> readFile() {
         String buildingsJson = pref.getString(STORAGE, null);
@@ -128,7 +132,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * Reads JSON data from two endpoints for buildind data
+     * Reads JSON data from two endpoints for building data
      */
     private void readData() {
         new DownloadFileFromURL().execute(getString(R.string.building_attr_url));
