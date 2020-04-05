@@ -1,3 +1,4 @@
+
 package ca.bcit.royalcitybuildinglens;
 
 import android.app.Activity;
@@ -10,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Config;
@@ -29,12 +29,10 @@ import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import uk.co.appoly.arcorelocation.LocationMarker;
@@ -44,6 +42,8 @@ import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 /**
  * ARActivity - Displays building cards in an augmented reality scene viewed through the
  * device's camera
+ * Reference: ArCore example : https://developers.google.com/ar/develop/java/quickstart
+ *            ArCore-location : https://www.appoly.co.uk/2018/03/28/arcore-location/
  */
 public class ARActivity extends AppCompatActivity {
     private static final String TAG = "ARActivity";
@@ -120,7 +120,7 @@ public class ARActivity extends AppCompatActivity {
                             if (locationScene == null) {
 
                                 locationScene = new LocationScene(this, this, arSceneView);
-                                ArrayList<LocationMarker> locationMarkers = new ArrayList<>();
+                                ArrayList<LocationMarker> locationMarkers = new ArrayList<LocationMarker>();
 
                                 // Applying building information to layout( getBuildingView() )
                                 for (int i = 0; i < bldgsToDisplay; i++){
@@ -310,6 +310,7 @@ public class ARActivity extends AppCompatActivity {
 
     /**
      * Listener for window focus changes
+     * Reference: ArCore-location examples
      * @param hasFocus boolean
      */
     @Override
@@ -332,6 +333,7 @@ public class ARActivity extends AppCompatActivity {
 
     /**
      * Displays loading message snackbar
+     * reference: ArCore-location examples
      */
     private void showLoadingMessage() {
         if (loadingMessageSnackbar != null && loadingMessageSnackbar.isShownOrQueued()) {
@@ -358,6 +360,7 @@ public class ARActivity extends AppCompatActivity {
 
     /**
      * Starts the AR session
+     * Reference: ArCore-location example
      * @param activity Activity
      * @param installRequested boolean
      * @return Session
@@ -382,7 +385,11 @@ public class ARActivity extends AppCompatActivity {
         }
         return session;
     }
-
+    
+    /**
+     * Handle exceptions for ArCore Session
+     * ArCore-location examples
+     */
     public static void handleSessionException(
             Activity activity, UnavailableException sessionException) {
 
