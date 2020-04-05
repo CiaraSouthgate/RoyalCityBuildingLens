@@ -10,7 +10,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Config;
@@ -29,33 +28,35 @@ import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
-
+/**
+ * ARActivity - Displays building cards in an augmented reality scene viewed through the
+ * device's camera
+ */
 public class ARActivity extends AppCompatActivity {
     private static final String TAG = "ARActivity";
     private ArSceneView arSceneView;
     private ArrayList<ViewRenderable> buildingRenderables = new ArrayList<>();
-
     private LocationScene locationScene;
     private boolean hasFinishedLoading = false;
     private Snackbar loadingMessageSnackbar = null;
     private boolean installRequested;
-
     private ArrayList<Building> buildings;
-
     private int bldgsToDisplay = 1;
 
+    /**
+     * Initial setup for the activity
+     * @param savedInstanceState Bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +82,7 @@ public class ARActivity extends AppCompatActivity {
         CompletableFuture.allOf(buildingLayouts.toArray(new CompletableFuture[0]))
                 .handle(
                         (notUsed, throwable) -> {
-                            // When Renderable is builded, Sceneform loads its resources
+                            // When Renderable is built, Sceneform loads its resources
                             // in the background while returning a CompletableFuture.
                             // Call handle(), thenAccept(), or check isDone() before calling get().
 
@@ -118,7 +119,7 @@ public class ARActivity extends AppCompatActivity {
                                 locationScene = new LocationScene(this, this, arSceneView);
                                 ArrayList<LocationMarker> locationMarkers = new ArrayList<LocationMarker>();
 
-                                // Building building information with layout( getBuildingView() )
+                                // Applying building information to layout( getBuildingView() )
                                 for (int i = 0; i < bldgsToDisplay; i++){
                                     LocationMarker layoutLocationMarker = new LocationMarker(
                                             buildings.get(i).getLocation().getLongitude(),
@@ -129,14 +130,11 @@ public class ARActivity extends AppCompatActivity {
                                     int index = i; // Can't pass a loop variable to an inner class
                                     layoutLocationMarker.setRenderEvent(locationNode -> {
                                         View card = buildingRenderables.get(index).getView();
-
                                         ImageButton circle = card.findViewById(R.id.locationCircle);
                                         LinearLayout container = card.findViewById(R.id.buildingCardContents);
-
                                         LinearLayout developerRow = card.findViewById(R.id.developerRow);
                                         LinearLayout architectRow = card.findViewById(R.id.architectRow);
                                         LinearLayout yearMovedRow = card.findViewById(R.id.yearMovedRow);
-                                        
                                         TextView addrView = card.findViewById(R.id.addressView);
                                         TextView bldgNameView = card.findViewById(R.id.bldgNameView);
                                         TextView latLngView = card.findViewById(R.id.latLngView);
@@ -225,6 +223,9 @@ public class ARActivity extends AppCompatActivity {
         return base;
     }
 
+    /**
+     * Resume AR scene
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -264,6 +265,10 @@ public class ARActivity extends AppCompatActivity {
         }
 
     }
+
+    /**
+     * Pauses AR scene
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -275,6 +280,9 @@ public class ARActivity extends AppCompatActivity {
         arSceneView.pause();
     }
 
+    /**
+     * Destroys AR scene
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -297,6 +305,10 @@ public class ARActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Listener for window focus changes
+     * @param hasFocus boolean
+     */
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -315,6 +327,9 @@ public class ARActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays loading message snackbar
+     */
     private void showLoadingMessage() {
         if (loadingMessageSnackbar != null && loadingMessageSnackbar.isShownOrQueued()) {
             return;
@@ -337,6 +352,14 @@ public class ARActivity extends AppCompatActivity {
         loadingMessageSnackbar.dismiss();
         loadingMessageSnackbar = null;
     }
+
+    /**
+     * Starts the AR session
+     * @param activity Activity
+     * @param installRequested boolean
+     * @return Session
+     * @throws UnavailableException Exception
+     */
     public static Session createArSession(Activity activity, boolean installRequested)
             throws UnavailableException {
         Session session = null;

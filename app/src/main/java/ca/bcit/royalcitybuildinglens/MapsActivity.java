@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -28,11 +27,9 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,13 +41,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+/**
+ * MapsActivity - Entrypoint for the app that loads building data asynchronously and displays the
+ * user's current location
+ */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private CardView loadingCard;
     private TextView loadingText;
@@ -59,24 +59,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button tryAgainButton;
     private ImageButton refreshButton;
     private boolean errorDisplayed;
-
     private GoogleMap mMap;
     private LocationManager locationManager;
     private LocationListener locationListener;
-
     private JSONObject bldgAttributes;
     private JSONObject bldgAge;
-
     private Gson gson = new Gson();
-
     private HashMap<Integer, Building> buildings;
     private ArrayList<Building> sortedBuildings;
-
     private static Location currentLocation;
-
     private static final String STORAGE = "buildings";
     private SharedPreferences pref;
 
+    /**
+     * Initial setup for the activity
+     * @param savedInstanceState Bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,15 +86,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         arButton = findViewById(R.id.arButton);
         tryAgainButton = findViewById(R.id.tryAgainButton);
         refreshButton = findViewById(R.id.refreshButton);
-
         errorDisplayed = false;
-
         bldgAttributes = null;
         bldgAge = null;
-
         pref = getApplicationContext().getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-
         buildings = readFile();
+
         if (buildings == null || buildings.isEmpty()) {
             readData();
         } else {
@@ -109,6 +104,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
+    /**
+     * Reads locally-stored building data and restores Building objects
+     * @return
+     */
     private HashMap<Integer, Building> readFile() {
         String buildingsJson = pref.getString(STORAGE, null);
         Type buildMapType = new TypeToken<HashMap<Integer, Building>>(){}.getType();
@@ -118,6 +117,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return buildingsMap;
     }
 
+    /**
+     * Saves a local copy of building data
+     */
     private void saveData() {
         String buildingsJson = gson.toJson(buildings);
         SharedPreferences.Editor editor = pref.edit();
@@ -125,11 +127,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editor.apply();
     }
 
+    /**
+     * Reads JSON data from two endpoints for buildind data
+     */
     private void readData() {
         new DownloadFileFromURL().execute(getString(R.string.building_attr_url));
         new DownloadFileFromURL().execute(getString(R.string.building_age_url));
     }
 
+    /**
+     * Converts JSON data to Building objects
+     */
     private void createBuildingObjects() {
         try {
             buildings = new HashMap<>();
@@ -166,12 +174,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Clears the progress indicator from the screen
+     */
     private void clearLoadingCard() {
         loadingCard.setVisibility(View.GONE);
         arButton.setVisibility(View.VISIBLE);
         refreshButton.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Displays a failure message if building data is unable to be fetched
+     */
     private void setLoadingError() {
         if (!errorDisplayed) {
             loadingText.setText(getString(R.string.loading_failed));
@@ -181,6 +195,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Displays the progress indicator while another attempt to fetch building data is done in the
+     * background
+     * @param v View
+     */
     public void onTryAgain(View v) {
         loadingText.setText(getString(R.string.loading_data));
         progressBar.setVisibility(View.VISIBLE);
@@ -190,6 +209,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         readData();
     }
 
+    /**
+     * Sorts the list of buildings relative to the user's current location, with nearer buildings
+     * ordered first
+     */
     private void sortBuildingsByNearest() {
         Comparator<Building> compareByLocation = (b1, b2) -> {
             Float b1Distance = currentLocation.distanceTo(b1.getLocation());
@@ -201,7 +224,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Collections.sort(buildingList, compareByLocation);
         sortedBuildings = buildingList;
 
-        // For testing
+        // For testing, prints closest building into the console
         Building closestBuilding = sortedBuildings.get(0);
         if (closestBuilding.getBuildingNameString() != null) {
             System.out.println("The closest building is " + closestBuilding.getBuildingNameString()
@@ -233,8 +256,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng,zoomLevel));
     }
 
+    /**
+     * Updates current location from device, if permission granted. Otherwise, uses last known
+     * location
+     * @param requestCode int
+     * @param permissions String[]
+     * @param grantResults int[]
+     */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -269,6 +300,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Zoom into users location
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
+
+            /**
+             * Updates current location when the user moves
+             * @param location Location
+             */
             @Override
             public void onLocationChanged(Location location) {
                 MapsActivity.currentLocation = location;
@@ -327,6 +363,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
+    /**
+     * Initiates a new fetch of the building data
+     * @param view View
+     */
     public void onClickRefresh(View view) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.confirm_refresh_title)
@@ -340,9 +380,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setNegativeButton(R.string.cancel, null).show();
     }
 
+    /**
+     * Asynchronously downloads building data from the remote endpoint
+     */
     @SuppressLint("StaticFieldLeak")
     private class DownloadFileFromURL extends AsyncTask<String, String, JSONObject> {
 
+        /**
+         * Downloads building data in JSON form in a separate thread
+         * @param params String
+         * @return JSONObject
+         */
         @Override
         protected JSONObject doInBackground(String... params) {
             HttpURLConnection connection = null;
@@ -381,6 +429,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return null;
         }
 
+        /**
+         * Initiates conversion of JSON data to Building objects once data is loaded, then clears
+         * the loading indicator from the screen
+         * @param result JSONObject
+         */
         @Override
         protected void onPostExecute(JSONObject result) {
             try {
